@@ -33,20 +33,21 @@
             // 
             // debugOutput
             // 
+            this.debugOutput.Enabled = false;
             this.debugOutput.Location = new System.Drawing.Point(12, 12);
             this.debugOutput.Multiline = true;
             this.debugOutput.Name = "debugOutput";
             this.debugOutput.Size = new System.Drawing.Size(370, 328);
             this.debugOutput.TabIndex = 0;
             // 
-            // MainWindow
+            // ServerMW
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(394, 352);
             this.Controls.Add(this.debugOutput);
-            this.Name = "MainWindow";
-            this.Text = "xoxoServer";            
+            this.Name = "ServerMW";
+            this.Text = "xoxoServer";
             this.ResumeLayout(false);
             this.PerformLayout();
 

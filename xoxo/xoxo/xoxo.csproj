@@ -52,7 +52,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ClientToServerBridge.cs" />
     <Compile Include="ClientMW.cs">
       <SubType>Form</SubType>
     </Compile>
