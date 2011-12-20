@@ -35,6 +35,7 @@
             // 
             // msgHst
             // 
+            this.msgHst.Enabled = false;
             this.msgHst.Location = new System.Drawing.Point(34, 23);
             this.msgHst.Multiline = true;
             this.msgHst.Name = "msgHst";
@@ -67,7 +68,7 @@
             this.Controls.Add(this.msgBox);
             this.Controls.Add(this.msgHst);
             this.Name = "MainWindow";
-            this.Text = "xoxo";            
+            this.Text = "xoxo";
             this.ResumeLayout(false);
             this.PerformLayout();
 

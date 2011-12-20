@@ -16,6 +16,7 @@ namespace xoxo
         Socket socket;        
         Encoding encoding = Encoding.UTF8;
         byte[] m_DataBuffer = new byte[1000];
+        public IAsyncResult asyn;
 
         public MainWindow()
         {
@@ -33,7 +34,8 @@ namespace xoxo
         {
             String msg = "ALL~" + msgBox.Text.Trim();
             this.socket.Send(this.encoding.GetBytes(msg));
-            msgHst.AppendText(">>" + msg + Environment.NewLine);
+            msgHst.AppendText(Environment.NewLine + ">>" + msg);
+            msgBox.Text = "";
         } 
       
         private void BeginReceive()
@@ -58,10 +60,6 @@ namespace xoxo
             System.String szData = new System.String(chars);
 
             appendText(szData);
-            
-           // WaitForData(m_socWorker);
-
-            //msgHst.AppendText(strReceived + Environment.NewLine);
 
             this.socket.BeginReceive(
                 this.m_DataBuffer, 0,
@@ -84,9 +82,6 @@ namespace xoxo
             {
                 this.msgHst.AppendText(Environment.NewLine + szData);
             }
-        }
-
-
-        public IAsyncResult asyn { get; set; }
+        } 
     }
 }
