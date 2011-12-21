@@ -21,7 +21,7 @@ namespace xoxoClient
         public doLogIn()
         {
             InitializeComponent();
-             NS = new NetworkServices();
+             NS = new NetworkServices(this);
 
         }
 
@@ -35,6 +35,11 @@ namespace xoxoClient
             
 
 
+        }
+
+        public void closeThisForm()
+        {
+            this.Close();
         }
     }
 }

@@ -31,8 +31,9 @@ namespace xoxoServer
         {
             server.clients[server.clients.Count - 1].setName(msg);
 
+            string added = "wasAdded0x0001";
             Socket _thisUser = server.getUserSocketByName(msg);
-            _thisUser.Send(encoding.GetBytes("wasAdded0x0001"));
+            _thisUser.Send(encoding.GetBytes(added));
         }
 
         private void sendMsgToAllClients(string msg)
