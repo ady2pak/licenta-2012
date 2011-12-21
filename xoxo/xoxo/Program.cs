@@ -5,7 +5,7 @@ using System.Windows.Forms;
 using System.Net;
 using System.Net.Sockets;
 
-namespace xoxo
+namespace xoxoClient
 {
     static class Program
     {
@@ -17,7 +17,7 @@ namespace xoxo
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new MainWindow());
+            Application.Run(new doLogIn());
 
         }
     }

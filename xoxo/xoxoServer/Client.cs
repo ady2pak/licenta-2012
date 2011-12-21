@@ -21,5 +21,15 @@ namespace xoxoServer
         {
             return socket;
         }
+
+        public void setName(string msg)
+        {
+            this.UserName = msg;
+        }
+
+        public string getUserName()
+        {
+            return UserName;
+        }
     }
 }

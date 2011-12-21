@@ -13,7 +13,7 @@ namespace xoxoServer
         Socket socket;
         ServerToClientBridge stcb;
         public ServerMW mw;
-        public List<Client> clients = new List<Client>();
+        public List<Client> clients = new List<Client>();        
         public int clientsIndex = 0;
 
         public Socket m_socListener;
@@ -92,10 +92,10 @@ namespace xoxoServer
             char[] chars = new char[iRx + 1];
             System.Text.Decoder d = System.Text.Encoding.UTF8.GetDecoder();
             int charLen = d.GetChars(m_DataBuffer, 0, iRx, chars, 0);
-            System.String szData = new System.String(chars);
-            windowForm.appendDebugOutput(szData);
+            System.String clientResponse = new System.String(chars);
+            windowForm.appendDebugOutput(clientResponse);
 
-            STCB.decideAction(szData.Substring(0, 3), szData.Substring(szData.IndexOf("~") + 1, szData.Length - 4));
+            STCB.decideAction(clientResponse.Substring(0, 3), clientResponse.Substring(clientResponse.IndexOf("~") + 1, clientResponse.Length - 4));
 
             //this.m_socWorker.Send(this.encoding.GetBytes(szData));
             WaitForData(m_socWorker);
@@ -104,6 +104,16 @@ namespace xoxoServer
         public AsyncCallback pfnCallBack { get; set; }
         IAsyncResult m_asynResult;
 
-        
+        public Socket getUserSocketByName(string username)
+        {
+            for (int index = 0 ; index < clients.Count ; index++)
+            {
+                if (clients[index].getUserName().Equals(username))
+                {
+                    return clients[index].getSocket();
+                }
+            }
+            return null;
+        }
     }
 }
