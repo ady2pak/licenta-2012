@@ -14,9 +14,11 @@ namespace xoxoClient
         byte[] m_DataBuffer = new byte[1000];
         public IAsyncResult asyn;        
         bool notAdded = false;
+        doLogIn dlg;
 
-        public NetworkServices()
+        public NetworkServices(doLogIn dlg)
         {
+            this.dlg = dlg;
             IPAddress[] ipAddress = Dns.GetHostAddresses("127.0.0.1");
             IPEndPoint ipEnd = new IPEndPoint(ipAddress[0], 8221);
             socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
@@ -45,20 +47,7 @@ namespace xoxoClient
             int charLen = d.GetChars(m_DataBuffer, 0, responseLenght, chars, 0);
             System.String serverResponse = new System.String(chars);
 
-            Console.Write(serverResponse);
-            string isOK = "wasAdded0x0001";
-
-            
-            if (serverResponse.Equals(isOK) //&& !notAdded)
-            {
-                Application.Run(new ClientMW(this));                
-                notAdded = true;
-                Console.Write("dafuq");
-            }
-
-            //else decideBasedOnResponse(serverResponse);
-                
-            
+            decideBasedOnResponse(serverResponse);               
            
             this.socket.BeginReceive(
                this.m_DataBuffer, 0,
@@ -68,9 +57,15 @@ namespace xoxoClient
                this);            
         }
 
-        private void decideBasedOnResponse(string szData)
+        private void decideBasedOnResponse(string response)
         {
-            throw new NotImplementedException();
+
+            if (response.Equals("wasAdded0x0001\0"))
+            {
+                
+                Application.Run(new ClientMW(this, dlg));
+                
+            }    
         }
     }
 }

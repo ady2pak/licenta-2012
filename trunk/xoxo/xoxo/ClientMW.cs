@@ -17,11 +17,14 @@ namespace xoxoClient
         Socket socket;
         Encoding encoding = Encoding.UTF8;
         NetworkServices netServ;
+        doLogIn dlg;
 
-        public ClientMW(NetworkServices netServ)
+        public ClientMW(NetworkServices netServ, doLogIn dlg)
         {
+            this.dlg = dlg;
             this.netServ = netServ;
             InitializeComponent();
+            dlg.closeThisForm();
         }
        
         private void button1_Click(object sender, EventArgs e)
