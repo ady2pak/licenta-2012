@@ -1,6 +1,6 @@
-﻿namespace xoxo
+﻿namespace xoxoClient
 {
-    partial class MainWindow
+    partial class ClientMW
     {
         /// <summary>
         /// Required designer variable.

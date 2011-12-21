@@ -22,8 +22,17 @@ namespace xoxoServer
 
         public void decideAction(string code, string msg)
         {
+            if (code.Equals("ADD")) addNewUser(msg);
             if (code.Equals("ALL")) sendMsgToAllClients(msg);
             //sendMsgToSpecificClient(this.socket, msg);
+        }
+
+        private void addNewUser(string msg)
+        {
+            server.clients[server.clients.Count - 1].setName(msg);
+
+            Socket _thisUser = server.getUserSocketByName(msg);
+            _thisUser.Send(encoding.GetBytes("wasAdded0x0001"));
         }
 
         private void sendMsgToAllClients(string msg)

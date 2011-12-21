@@ -9,25 +9,19 @@ using System.Windows.Forms;
 using System.Net;
 using System.Net.Sockets;
 
-namespace xoxo
+namespace xoxoClient
 {
-    public partial class MainWindow : Form
+    public partial class ClientMW : Form
     {
-        Socket socket;        
+
+        Socket socket;
         Encoding encoding = Encoding.UTF8;
-        byte[] m_DataBuffer = new byte[1000];
-        public IAsyncResult asyn;
+        NetworkServices netServ;
 
-        public MainWindow()
+        public ClientMW(NetworkServices netServ)
         {
+            this.netServ = netServ;
             InitializeComponent();
-
-            IPAddress[] ipAddress = Dns.GetHostAddresses("127.0.0.1");
-            IPEndPoint ipEnd = new IPEndPoint(ipAddress[0], 8221);
-            socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            socket.Connect(ipEnd);
-
-            this.BeginReceive();
         }
        
         private void button1_Click(object sender, EventArgs e)
@@ -38,36 +32,7 @@ namespace xoxo
             msgBox.Text = "";
         } 
       
-        private void BeginReceive()
-        {
-            this.socket.BeginReceive(
-                this.m_DataBuffer, 0,
-                this.m_DataBuffer.Length,
-                SocketFlags.None,
-                new AsyncCallback(this.OnBytesReceived),
-                this);           
-        }
-
         
-
-        private void OnBytesReceived(IAsyncResult asyn)
-        {
-            int iRx = 0;
-            iRx = socket.EndReceive(asyn);
-            char[] chars = new char[iRx + 1];
-            System.Text.Decoder d = System.Text.Encoding.UTF8.GetDecoder();
-            int charLen = d.GetChars(m_DataBuffer, 0, iRx, chars, 0);
-            System.String szData = new System.String(chars);
-
-            appendText(szData);
-
-            this.socket.BeginReceive(
-                this.m_DataBuffer, 0,
-                this.m_DataBuffer.Length,
-                SocketFlags.None,
-                new AsyncCallback(this.OnBytesReceived),
-                this);
-        }
 
         delegate void appendTextCallback(string text);
 

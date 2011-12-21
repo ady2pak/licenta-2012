@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xoxo", "xoxo\xoxo.csproj", "{77F9238B-4532-4A3B-82CB-ECB72765F804}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xoxoClient", "xoxo\xoxoClient.csproj", "{77F9238B-4532-4A3B-82CB-ECB72765F804}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xoxoServer", "xoxoServer\xoxoServer.csproj", "{0E9908A0-F6F2-4483-B69A-81D4F74534C8}"
 EndProject
