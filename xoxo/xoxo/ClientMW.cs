@@ -19,23 +19,19 @@ namespace xoxoClient
         NetworkServices netServ;
         doLogIn dlg;
 
-        public ClientMW(NetworkServices netServ, doLogIn dlg)
+        public ClientMW(NetworkServices netServ)
         {
-            this.dlg = dlg;
             this.netServ = netServ;
             InitializeComponent();
-            dlg.closeThisForm();
         }
        
         private void button1_Click(object sender, EventArgs e)
         {
             String msg = "ALL~" + msgBox.Text.Trim();
-            this.socket.Send(this.encoding.GetBytes(msg));
+            socket.Send(this.encoding.GetBytes(msg));
             msgHst.AppendText(Environment.NewLine + ">>" + msg);
             msgBox.Text = "";
         } 
-      
-        
 
         delegate void appendTextCallback(string text);
 

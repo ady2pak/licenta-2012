@@ -13,11 +13,13 @@ namespace xoxoClient
         /// The main entry point for the application.
         /// </summary>
         [STAThread]
+
         static void Main()
         {
+            NetworkServices netServ = new NetworkServices();
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new doLogIn());
+            Application.Run(new doLogIn(netServ));
 
         }
     }

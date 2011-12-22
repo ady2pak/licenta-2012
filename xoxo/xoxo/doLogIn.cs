@@ -1,12 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
 using System.Text;
 using System.Windows.Forms;
-using System.Net.Sockets;
+using System.Threading;
 
 namespace xoxoClient
 {
@@ -14,15 +9,13 @@ namespace xoxoClient
     {
         string _username;
         string _password;
-        Socket socket;
-        NetworkServices NS;
+        NetworkServices netServ;
         Encoding encoding = Encoding.UTF8;
 
-        public doLogIn()
+        public doLogIn(NetworkServices netServ)
         {
+            this.netServ = netServ;
             InitializeComponent();
-             NS = new NetworkServices(this);
-
         }
 
         private void OKbtn_Click(object sender, EventArgs e)
@@ -30,16 +23,18 @@ namespace xoxoClient
             _username = usernameTB.Text;
             _password = passwordTB.Text;
 
-            NS.socket.Send(encoding.GetBytes("ADD~" + _username));
+           netServ.socket.Send(encoding.GetBytes("ADD~" + _username));
 
-            
-
-
+           while (netServ.iAmConnected == false) Thread.Sleep(200);           
+           
+           Thread mainWindow = new Thread(new ThreadStart(runClient));
+           mainWindow.Start();
+           this.BeginInvoke(new MethodInvoker(this.Close));
         }
 
-        public void closeThisForm()
+        void runClient()
         {
-            this.Close();
+            Application.Run(new ClientMW(this.netServ));
         }
     }
 }
