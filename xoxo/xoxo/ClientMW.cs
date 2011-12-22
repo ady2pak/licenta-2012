@@ -11,15 +11,13 @@ using System.Net.Sockets;
 
 namespace xoxoClient
 {
-    public partial class ClientMW : Form
+    public partial class ClientMWWindow : Form
     {
-
-        Socket socket;
         Encoding encoding = Encoding.UTF8;
         NetworkServices netServ;
-        doLogIn dlg;
+        
 
-        public ClientMW(NetworkServices netServ)
+        public ClientMWWindow(NetworkServices netServ)
         {
             this.netServ = netServ;
             InitializeComponent();
@@ -28,14 +26,14 @@ namespace xoxoClient
         private void button1_Click(object sender, EventArgs e)
         {
             String msg = "ALL~" + msgBox.Text.Trim();
-            socket.Send(this.encoding.GetBytes(msg));
+            netServ.socket.Send(this.encoding.GetBytes(msg));
             msgHst.AppendText(Environment.NewLine + ">>" + msg);
             msgBox.Text = "";
         } 
 
         delegate void appendTextCallback(string text);
 
-        private void appendText(string szData)
+        public void appendText(string szData)
         {
             if (this.msgHst.InvokeRequired)
             {
@@ -46,6 +44,6 @@ namespace xoxoClient
             {
                 this.msgHst.AppendText(Environment.NewLine + szData);
             }
-        } 
+        }  
     }
 }

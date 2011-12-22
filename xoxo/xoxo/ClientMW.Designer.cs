@@ -1,6 +1,6 @@
 ﻿namespace xoxoClient
 {
-    partial class ClientMW
+    partial class ClientMWWindow
     {
         /// <summary>
         /// Required designer variable.
@@ -59,7 +59,7 @@
             this.button1.UseVisualStyleBackColor = true;
             this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
-            // MainWindow
+            // ClientMWWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -67,7 +67,7 @@
             this.Controls.Add(this.button1);
             this.Controls.Add(this.msgBox);
             this.Controls.Add(this.msgHst);
-            this.Name = "MainWindow";
+            this.Name = "ClientMWWindow";
             this.Text = "xoxo";
             this.ResumeLayout(false);
             this.PerformLayout();
