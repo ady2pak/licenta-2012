@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Net.Sockets;
 using System.Net;
+using System.Net.Sockets;
 using System.Windows.Forms;
 
 namespace xoxoClient
@@ -12,20 +9,19 @@ namespace xoxoClient
     {
         public Socket socket;
         byte[] m_DataBuffer = new byte[1000];
-        public IAsyncResult asyn;        
-        bool notAdded = false;
-        doLogIn dlg;
+        public IAsyncResult asyn;
+        public bool iAmConnected;
+        
 
-        public NetworkServices(doLogIn dlg)
+        public NetworkServices()
         {
-            this.dlg = dlg;
             IPAddress[] ipAddress = Dns.GetHostAddresses("127.0.0.1");
             IPEndPoint ipEnd = new IPEndPoint(ipAddress[0], 8221);
             socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             socket.Connect(ipEnd);
 
+            iAmConnected = false;
             this.BeginReceive();
-            
         }
 
         private void BeginReceive()
@@ -41,7 +37,14 @@ namespace xoxoClient
         private void OnBytesReceived(IAsyncResult asyn)
         {
             int responseLenght = 0;
-            responseLenght = socket.EndReceive(asyn);
+            try
+            {
+                responseLenght = socket.EndReceive(asyn);
+            }
+            catch (Exception ex)
+            {
+                Console.Write(ex.Message);
+            }
             char[] chars = new char[responseLenght + 1];
             System.Text.Decoder d = System.Text.Encoding.UTF8.GetDecoder();
             int charLen = d.GetChars(m_DataBuffer, 0, responseLenght, chars, 0);
@@ -62,10 +65,14 @@ namespace xoxoClient
 
             if (response.Equals("wasAdded0x0001\0"))
             {
-                
-                Application.Run(new ClientMW(this, dlg));
-                
+                iAmConnected = true;
             }    
+        }
+
+        internal bool isConnected()
+        {
+            if (iAmConnected) return true;
+            else return false;
         }
     }
 }
