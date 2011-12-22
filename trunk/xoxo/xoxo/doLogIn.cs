@@ -34,7 +34,7 @@ namespace xoxoClient
 
         void runClient()
         {
-            Application.Run(new ClientMW(this.netServ));
+            Application.Run(new ClientMWWindow(this.netServ));
         }
     }
 }

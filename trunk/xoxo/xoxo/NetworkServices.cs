@@ -10,8 +10,7 @@ namespace xoxoClient
         public Socket socket;
         byte[] m_DataBuffer = new byte[1000];
         public IAsyncResult asyn;
-        public bool iAmConnected;
-        
+        public bool iAmConnected;             
 
         public NetworkServices()
         {
@@ -60,14 +59,15 @@ namespace xoxoClient
                this);            
         }
 
-        private void decideBasedOnResponse(string response)
+        void decideBasedOnResponse(string response)
         {
 
             if (response.Equals("wasAdded0x0001\0"))
             {
                 iAmConnected = true;
-            }    
+            }           
         }
+            
 
         internal bool isConnected()
         {
