@@ -19,7 +19,7 @@ namespace xoxoClient
             NetworkServices netServ = new NetworkServices();
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new doLogIn(netServ));
+            Application.Run(new ClientMW(netServ));
 
         }
     }
