@@ -16,10 +16,9 @@ namespace xoxoClient
 
         static void Main()
         {
-            NetworkServices netServ = new NetworkServices();
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new ClientMW(netServ));
+            Application.Run(new ClientMW());
 
         }
     }
