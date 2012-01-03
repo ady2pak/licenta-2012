@@ -8,21 +8,21 @@ namespace xoxoServer
 {
     class Server
     {
+        public ServerMW windowForm;
 
-        Socket serverSocket;
-        Socket socket;
-        ServerToClientBridge stcb;
-        public ServerMW mw;
         public List<Client> clients = new List<Client>();        
         public int clientsIndex = 0;
 
         public Socket m_socListener;
-        ServerMW windowForm;
-        public Socket m_socWorker;
+        public Socket[] m_socWorker = new Socket[10];
+        int m_clientCount = 0;
+        
         Encoding encoding = Encoding.UTF8;
-        byte[] m_DataBuffer = new byte[1000];
+        
         ServerToClientBridge STCB;
 
+        public AsyncCallback pfnWorkerCallback;
+        
         public Server(ServerMW windowForm)
         {
             this.windowForm = windowForm;
@@ -30,8 +30,7 @@ namespace xoxoServer
             STCB = new ServerToClientBridge(this);
 
         }
-
-
+        
         public void startListening()
         {
             try
@@ -54,10 +53,13 @@ namespace xoxoServer
             string userName = "placeholder"; // to be edited
             try
             {
-                m_socWorker = m_socListener.EndAccept(asyn);
-                Client _newUser = new Client(m_socWorker, userName);
+                m_socWorker[m_clientCount] = m_socListener.EndAccept(asyn);
+
+                Client _newUser = new Client(m_socWorker[m_clientCount], userName);
                 clients.Add(_newUser);
-                WaitForData(m_socWorker);
+                WaitForData(m_socWorker[m_clientCount]);
+                ++m_clientCount;
+
                 m_socListener.BeginAccept(new AsyncCallback(OnClientConnect), null);
             }
             catch (ObjectDisposedException)
@@ -66,43 +68,70 @@ namespace xoxoServer
             }
             catch (SocketException se)
             {
-                windowForm.appendDebugOutput(se.Message);
+                windowForm.appendDebugOutput(se.Message + se.StackTrace);
             }
             catch (Exception ex)
             {
-                windowForm.appendDebugOutput(ex.Message);
+                windowForm.appendDebugOutput(ex.Message + ex.StackTrace);
             }
+        }
+
+        public class SocketPacket
+        {
+            public Socket m_currentSocket;
+            public byte[] dataBuffer = new byte[100];
         }
 
         public void WaitForData(Socket m_socWorker)
         {
-            this.m_socWorker.BeginReceive(
-                this.m_DataBuffer, 0,
-                this.m_DataBuffer.Length,
-                SocketFlags.None,
-                new AsyncCallback(this.OnDataReceived),
-                this); 
+            try
+            {
+                if (pfnWorkerCallback == null)
+                {
+                    pfnWorkerCallback = new AsyncCallback(OnDataReceived);
+                }
+                SocketPacket theSokPkt = new SocketPacket();
+                theSokPkt.m_currentSocket = m_socWorker;
+                m_socWorker.BeginReceive(theSokPkt.dataBuffer, 0,
+                    theSokPkt.dataBuffer.Length,
+                    SocketFlags.None,
+                    pfnWorkerCallback,
+                    theSokPkt);
+            }
+            catch (SocketException se)
+            {
+                windowForm.appendDebugOutput(se.Message);
+            }
         }
 
         public void OnDataReceived(IAsyncResult asyn)
         {
-            //end receive...
-            int iRx = 0;
-            iRx = m_socWorker.EndReceive(asyn);
-            char[] chars = new char[iRx + 1];
-            System.Text.Decoder d = System.Text.Encoding.UTF8.GetDecoder();
-            int charLen = d.GetChars(m_DataBuffer, 0, iRx, chars, 0);
-            System.String clientResponse = new System.String(chars);
-            windowForm.appendDebugOutput(clientResponse);
+            try
+            {
+                SocketPacket socketData = (SocketPacket)asyn.AsyncState;
 
-            STCB.decideAction(clientResponse.Substring(0, 3), clientResponse.Substring(clientResponse.IndexOf("~") + 1, clientResponse.Length - 4));
+                int iRx = 0;
+                iRx = socketData.m_currentSocket.EndReceive(asyn);
+                char[] chars = new char[iRx + 1];
+                System.Text.Decoder d = System.Text.Encoding.UTF8.GetDecoder();
+                int charLen = d.GetChars(socketData.dataBuffer, 0, iRx, chars, 0);
+                System.String clientResponse = new System.String(chars);
 
-            //this.m_socWorker.Send(this.encoding.GetBytes(szData));
-            WaitForData(m_socWorker);
+                windowForm.appendDebugOutput(clientResponse);
+
+                STCB.decideAction(clientResponse.Substring(0, 3), clientResponse.Substring(clientResponse.IndexOf("~") + 1, clientResponse.Length - 4));
+                
+                WaitForData(socketData.m_currentSocket);
+            }
+            catch (ObjectDisposedException)
+            {
+                System.Diagnostics.Debugger.Log(0, "1", "\nOnDataReceived: Socket has been closed\n");
+            }
+            catch (SocketException se)
+            {
+                windowForm.appendDebugOutput(se.Message);
+            }
         }
-
-        public AsyncCallback pfnCallBack { get; set; }
-        IAsyncResult m_asynResult;
 
         public Socket getUserSocketByName(string username)
         {

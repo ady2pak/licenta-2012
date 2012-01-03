@@ -7,56 +7,83 @@ namespace xoxoClient
 {
     public class NetworkServices
     {
-        public Socket socket;
+        public Socket m_clientSocket;
         byte[] m_DataBuffer = new byte[1000];
-        public IAsyncResult asyn;
-        public bool iAmConnected;             
+        IAsyncResult m_result;
+        public AsyncCallback m_pfnCallBack;
+        public bool iAmConnected;
+        ClientMW clientMW;     
 
-        public NetworkServices()
+        public NetworkServices(ClientMW clientMW)
         {
+            this.clientMW = clientMW;
+
+            m_clientSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             IPAddress[] ipAddress = Dns.GetHostAddresses("127.0.0.1");
             IPEndPoint ipEnd = new IPEndPoint(ipAddress[0], 8221);
-            socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            socket.Connect(ipEnd);
+            
+            m_clientSocket.Connect(ipEnd);
 
             iAmConnected = false;
-            this.BeginReceive();
+
+            if (m_clientSocket.Connected)
+            {
+                WaitForData();
+            }
         }
 
-        private void BeginReceive()
+        private void WaitForData()
         {
-            this.socket.BeginReceive(
-                this.m_DataBuffer, 0,
-                this.m_DataBuffer.Length,
-                SocketFlags.None,
-                new AsyncCallback(this.OnBytesReceived),
-                this);
-        }
-
-        private void OnBytesReceived(IAsyncResult asyn)
-        {
-            int responseLenght = 0;
             try
             {
-                responseLenght = socket.EndReceive(asyn);
+                if (m_pfnCallBack == null)
+                {
+                    m_pfnCallBack = new AsyncCallback(OnDataReceived);
+                }
+                SocketPacket theSocPkt = new SocketPacket();
+                theSocPkt.thisSocket = m_clientSocket;
+                // Start listening to the data asynchronously
+                m_result = m_clientSocket.BeginReceive(theSocPkt.dataBuffer,
+                                                        0, theSocPkt.dataBuffer.Length,
+                                                        SocketFlags.None,
+                                                        m_pfnCallBack,
+                                                        theSocPkt);
             }
-            catch (Exception ex)
+            catch (SocketException se)
             {
-                Console.Write(ex.Message);
+                MessageBox.Show(se.Message);
             }
-            char[] chars = new char[responseLenght + 1];
-            System.Text.Decoder d = System.Text.Encoding.UTF8.GetDecoder();
-            int charLen = d.GetChars(m_DataBuffer, 0, responseLenght, chars, 0);
-            System.String serverResponse = new System.String(chars);
+        }
 
-            decideBasedOnResponse(serverResponse);               
-           
-            this.socket.BeginReceive(
-               this.m_DataBuffer, 0,
-               this.m_DataBuffer.Length,
-               SocketFlags.None,
-               new AsyncCallback(this.OnBytesReceived),
-               this);            
+        public class SocketPacket
+        {
+            public System.Net.Sockets.Socket thisSocket;
+            public byte[] dataBuffer = new byte[100];
+        }
+
+        private void OnDataReceived(IAsyncResult asyn)
+        {
+            try
+            {
+                SocketPacket theSockId = (SocketPacket)asyn.AsyncState;
+                int iRx = theSockId.thisSocket.EndReceive(asyn);
+                char[] chars = new char[iRx + 1];
+                System.Text.Decoder d = System.Text.Encoding.UTF8.GetDecoder();
+                int charLen = d.GetChars(theSockId.dataBuffer, 0, iRx, chars, 0);
+                System.String serverResponse = new System.String(chars);
+                
+                decideBasedOnResponse(serverResponse);
+
+                WaitForData();
+            }
+            catch (ObjectDisposedException)
+            {
+                System.Diagnostics.Debugger.Log(0, "1", "\nOnDataReceived: Socket has been closed\n");
+            }
+            catch (SocketException se)
+            {
+                MessageBox.Show(se.Message);
+            }          
         }
 
         void decideBasedOnResponse(string response)
@@ -65,7 +92,10 @@ namespace xoxoClient
             if (response.Equals("wasAdded0x0001\0"))
             {
                 iAmConnected = true;
-            }           
+            }
+            else
+                if (response.Substring(0,3).Equals("ALL")) clientMW.appendText(response.Substring(4));
+
         }
             
 

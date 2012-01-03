@@ -38,8 +38,15 @@ namespace xoxoServer
 
         private void sendMsgToAllClients(string msg)
         {
-            for (int index = 0; index < server.clients.Count; index++)
-                sendMsgToSpecificClient(server.clients[index].getSocket(), msg);
+            try
+            {
+                for (int index = 0; index < server.clients.Count; index++)
+                    sendMsgToSpecificClient(server.clients[index].getSocket(), "ALL~" + msg);
+            }
+            catch (Exception ex)
+            {
+                server.windowForm.appendDebugOutput(ex.Message);
+            }
         }
 
         private void sendMsgToSpecificClient(Socket socket, string msg)
@@ -50,7 +57,8 @@ namespace xoxoServer
             }
             catch (Exception ex)
             {
-                server.mw.appendDebugOutput(ex.ToString());
+                
+                server.windowForm.appendDebugOutput(ex.ToString());
             }
         }
        

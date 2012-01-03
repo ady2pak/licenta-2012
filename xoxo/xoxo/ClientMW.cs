@@ -1,14 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
 using System.Text;
-using System.Windows.Forms;
-using System.Net;
-using System.Net.Sockets;
 using System.Threading;
+using System.Windows.Forms;
 
 namespace xoxoClient
 {
@@ -20,16 +13,16 @@ namespace xoxoClient
         string _password;
         
 
-        public ClientMW(NetworkServices netServ)
+        public ClientMW()
         {
-            this.netServ = netServ;
+            netServ = new NetworkServices(this);
             InitializeComponent();
         }
        
         private void sendBTN_Click(object sender, EventArgs e)
         {
             String msg = "ALL~" + msgBox.Text.Trim();
-            netServ.socket.Send(this.encoding.GetBytes(msg));
+            netServ.m_clientSocket.Send(this.encoding.GetBytes(msg));
             msgHst.AppendText(Environment.NewLine + ">>" + msg);
             msgBox.Text = "";
         }
@@ -39,7 +32,7 @@ namespace xoxoClient
             _username = usernameTB.Text;
             _password = passwordTB.Text;
 
-            netServ.socket.Send(encoding.GetBytes("ADD~" + _username));
+            netServ.m_clientSocket.Send(encoding.GetBytes("ADD~" + _username));
 
             while (netServ.iAmConnected == false) Thread.Sleep(200);
 
