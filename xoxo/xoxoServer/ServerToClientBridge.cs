@@ -9,43 +9,36 @@ namespace xoxoServer
 {
     class ServerToClientBridge
     {
-        Server server;
+        NetworkServices netServ;
         Socket socket;
         Encoding encoding = Encoding.UTF8; 
 
-        public ServerToClientBridge(Server server)
+        public ServerToClientBridge(NetworkServices netServ)
         {
-            this.server = server;
-            //this.socket = socket;
-            
+            this.netServ = netServ;
         }        
 
         public void decideAction(string code, string msg)
         {
             if (code.Equals("ADD")) addNewUser(msg);
             if (code.Equals("ALL")) sendMsgToAllClients(msg);
-            //sendMsgToSpecificClient(this.socket, msg);
         }
 
         private void addNewUser(string msg)
         {
-            server.clients[server.clients.Count - 1].setName(msg);
-
-            string added = "wasAdded0x0001";
-            Socket _thisUser = server.getUserSocketByName(msg);
-            _thisUser.Send(encoding.GetBytes(added));
+            netServ.clients[netServ.clients.Count - 1].setName(msg);
         }
 
         private void sendMsgToAllClients(string msg)
         {
             try
             {
-                for (int index = 0; index < server.clients.Count; index++)
-                    sendMsgToSpecificClient(server.clients[index].getSocket(), "ALL~" + msg);
+                for (int index = 0; index < netServ.clients.Count; index++)
+                    sendMsgToSpecificClient(netServ.clients[index].getSocket(), "ALL~" + msg);
             }
             catch (Exception ex)
             {
-                server.windowForm.appendDebugOutput(ex.Message);
+                netServ.serverMW.appendDebugOutput(ex.Message);
             }
         }
 
@@ -58,7 +51,7 @@ namespace xoxoServer
             catch (Exception ex)
             {
                 
-                server.windowForm.appendDebugOutput(ex.ToString());
+                netServ.serverMW.appendDebugOutput(ex.ToString());
             }
         }
        

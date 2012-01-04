@@ -6,9 +6,9 @@ using System.Text;
 
 namespace xoxoServer
 {
-    class Server
+    class NetworkServices
     {
-        public ServerMW windowForm;
+        public ServerMW serverMW;
 
         public List<Client> clients = new List<Client>();        
         public int clientsIndex = 0;
@@ -20,14 +20,18 @@ namespace xoxoServer
         Encoding encoding = Encoding.UTF8;
         
         ServerToClientBridge STCB;
+        DatabaseServices DS;
 
         public AsyncCallback pfnWorkerCallback;
         
-        public Server(ServerMW windowForm)
+        public NetworkServices(ServerMW windowForm)
         {
-            this.windowForm = windowForm;
+            this.serverMW = windowForm;
             startListening();
             STCB = new ServerToClientBridge(this);
+            DS = new DatabaseServices(this);
+
+            DS.executeQuery();
 
         }
         
@@ -43,7 +47,7 @@ namespace xoxoServer
             }
             catch (SocketException se)
             {
-                windowForm.appendDebugOutput(se.Message);
+                serverMW.appendDebugOutput(se.Message);
             }
         }
 
@@ -68,11 +72,11 @@ namespace xoxoServer
             }
             catch (SocketException se)
             {
-                windowForm.appendDebugOutput(se.Message + se.StackTrace);
+                serverMW.appendDebugOutput(se.Message + se.StackTrace);
             }
             catch (Exception ex)
             {
-                windowForm.appendDebugOutput(ex.Message + ex.StackTrace);
+                serverMW.appendDebugOutput(ex.Message + ex.StackTrace);
             }
         }
 
@@ -100,7 +104,7 @@ namespace xoxoServer
             }
             catch (SocketException se)
             {
-                windowForm.appendDebugOutput(se.Message);
+                serverMW.appendDebugOutput(se.Message);
             }
         }
 
@@ -117,7 +121,7 @@ namespace xoxoServer
                 int charLen = d.GetChars(socketData.dataBuffer, 0, iRx, chars, 0);
                 System.String clientResponse = new System.String(chars);
 
-                windowForm.appendDebugOutput(clientResponse);
+                serverMW.appendDebugOutput(clientResponse);
 
                 STCB.decideAction(clientResponse.Substring(0, 3), clientResponse.Substring(clientResponse.IndexOf("~") + 1, clientResponse.Length - 4));
                 
@@ -129,7 +133,7 @@ namespace xoxoServer
             }
             catch (SocketException se)
             {
-                windowForm.appendDebugOutput(se.Message);
+                serverMW.appendDebugOutput(se.Message);
             }
         }
 
