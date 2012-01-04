@@ -17,8 +17,8 @@ namespace xoxoServer
         {
             InitializeComponent();
             
-            new Server(this);
-
+            new NetworkServices(this);
+            
             debugOutput.AppendText("Server Started.");
         }
         

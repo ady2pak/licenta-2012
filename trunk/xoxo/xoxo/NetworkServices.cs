@@ -8,26 +8,28 @@ namespace xoxoClient
     public class NetworkServices
     {
         public Socket m_clientSocket;
-        byte[] m_DataBuffer = new byte[1000];
+        //byte[] m_DataBuffer = new byte[1000];
         IAsyncResult m_result;
         public AsyncCallback m_pfnCallBack;
         public bool iAmConnected;
-        ClientMW clientMW;     
+        ClientMW clientMW;
+
+        public class SocketPacket
+        {
+            public System.Net.Sockets.Socket thisSocket;
+            public byte[] dataBuffer = new byte[1000];
+        }
 
         public NetworkServices(ClientMW clientMW)
         {
             this.clientMW = clientMW;
-
             m_clientSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             IPAddress[] ipAddress = Dns.GetHostAddresses("127.0.0.1");
             IPEndPoint ipEnd = new IPEndPoint(ipAddress[0], 8221);
-            
             m_clientSocket.Connect(ipEnd);
-
-            iAmConnected = false;
-
             if (m_clientSocket.Connected)
             {
+                clientMW._connected = true;
                 WaitForData();
             }
         }
@@ -42,12 +44,7 @@ namespace xoxoClient
                 }
                 SocketPacket theSocPkt = new SocketPacket();
                 theSocPkt.thisSocket = m_clientSocket;
-                // Start listening to the data asynchronously
-                m_result = m_clientSocket.BeginReceive(theSocPkt.dataBuffer,
-                                                        0, theSocPkt.dataBuffer.Length,
-                                                        SocketFlags.None,
-                                                        m_pfnCallBack,
-                                                        theSocPkt);
+                m_result = m_clientSocket.BeginReceive(theSocPkt.dataBuffer, 0, theSocPkt.dataBuffer.Length, SocketFlags.None, m_pfnCallBack, theSocPkt);
             }
             catch (SocketException se)
             {
@@ -55,11 +52,7 @@ namespace xoxoClient
             }
         }
 
-        public class SocketPacket
-        {
-            public System.Net.Sockets.Socket thisSocket;
-            public byte[] dataBuffer = new byte[100];
-        }
+        
 
         private void OnDataReceived(IAsyncResult asyn)
         {
@@ -87,22 +80,8 @@ namespace xoxoClient
         }
 
         void decideBasedOnResponse(string response)
-        {
-
-            if (response.Equals("wasAdded0x0001\0"))
-            {
-                iAmConnected = true;
-            }
-            else
+        {                       
                 if (response.Substring(0,3).Equals("ALL")) clientMW.appendText(response.Substring(4));
-
-        }
-            
-
-        internal bool isConnected()
-        {
-            if (iAmConnected) return true;
-            else return false;
         }
     }
 }

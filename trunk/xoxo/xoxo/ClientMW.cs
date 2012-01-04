@@ -11,8 +11,10 @@ namespace xoxoClient
         NetworkServices netServ;
         string _username;
         string _password;
-        
+        public bool _connected = false;
 
+        delegate void appendTextCallback(string text);
+        
         public ClientMW()
         {
             netServ = new NetworkServices(this);
@@ -31,15 +33,12 @@ namespace xoxoClient
         {
             _username = usernameTB.Text;
             _password = passwordTB.Text;
-
             netServ.m_clientSocket.Send(encoding.GetBytes("ADD~" + _username));
-
-            while (netServ.iAmConnected == false) Thread.Sleep(200);
-
+            while (!_connected) ;
             showChat();
         }
 
-        private void showChat()
+        public void showChat()
         {
             this.loginLBL.Visible = false;
             this.usernameLBL.Visible = false;
@@ -52,18 +51,16 @@ namespace xoxoClient
             this.sendBTN.Visible = true;
         }
 
-        delegate void appendTextCallback(string text);
-
-        public void appendText(string szData)
+        public void appendText(string msg)
         {
             if (this.msgHst.InvokeRequired)
             {
                 appendTextCallback d = new appendTextCallback(appendText);
-                this.Invoke(d, new object[] { szData });
+                this.Invoke(d, new object[] { msg });
             }
             else
             {
-                this.msgHst.AppendText(Environment.NewLine + szData);
+                this.msgHst.AppendText(Environment.NewLine + msg);
             }
         }          
     }
