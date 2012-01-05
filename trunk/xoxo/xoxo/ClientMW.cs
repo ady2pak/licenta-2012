@@ -1,10 +1,9 @@
 ﻿using System;
-using System.Text;
-using System.Threading;
-using System.Windows.Forms;
+using System.IO;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
-using System.IO;
+using System.Text;
+using System.Windows.Forms;
 
 namespace xoxoChat
 {
@@ -69,8 +68,6 @@ namespace xoxoChat
             Stream stream = new MemoryStream();
 
             formatter.Serialize(stream, objToSend);
-
-            //stream.Flush();
 
             byte[] buffer = ((MemoryStream)stream).ToArray();
 
