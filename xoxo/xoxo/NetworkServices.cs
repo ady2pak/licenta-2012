@@ -1,17 +1,16 @@
 ﻿using System;
+using System.IO;
 using System.Net;
 using System.Net.Sockets;
-using System.Windows.Forms;
 using System.Runtime.Serialization;
-using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Windows.Forms;
 
 namespace xoxoChat
 {
     public class NetworkServices
     {
         public Socket m_clientSocket;
-        //byte[] m_DataBuffer = new byte[1000];
         IAsyncResult m_result;
         public AsyncCallback m_pfnCallBack;
         public bool iAmConnected;
@@ -101,11 +100,6 @@ namespace xoxoChat
                 clientMW.appendText("["+ msg.whoAmI + "] " + msg.message);
             }
             else throw new Exception("Unsupported object type");
-        }
-
-        void decideBasedOnResponse(string response)
-        {                       
-                if (response.Substring(0,3).Equals("ALL")) clientMW.appendText(response.Substring(4));
         }
     }
 }
