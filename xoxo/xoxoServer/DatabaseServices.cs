@@ -1,20 +1,19 @@
 ﻿using System;
 using System.Data.SqlClient;
+using System.Data.SqlServerCe;
 
 namespace xoxoServer
 {
     class DatabaseServices
     {
         NetworkServices netServ;
-        SqlConnection myConnection;
+        SqlCeConnection myConnection;
 
         public DatabaseServices(NetworkServices netServ)
         {
             this.netServ = netServ;
 
-            string connectionString = GetConnectionString();
-
-            myConnection = new SqlConnection(connectionString);
+            myConnection = new SqlCeConnection(@"Data Source = |DataDirectory|\database.sdf");
             try
             {
                 myConnection.Open();
@@ -26,19 +25,12 @@ namespace xoxoServer
            
         }
 
-        static private string GetConnectionString()
-        {
-            // To avoid storing the connection string in your code, 
-            // you can retrieve it from a configuration file.
-            return "Data Source=|DataDirectory|/database.sdf";
-        }
-
         public void executeQuery() 
         {
             try
             {
-                SqlDataReader myReader = null;
-                SqlCommand myCommand = new SqlCommand("select * from table",
+                SqlCeDataReader myReader = null;
+                SqlCeCommand myCommand = new SqlCeCommand("select * from Users",
                                                          myConnection);
                 myReader = myCommand.ExecuteReader();
                 while (myReader.Read())
