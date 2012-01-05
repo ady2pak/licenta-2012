@@ -5,7 +5,7 @@ using System.Windows.Forms;
 using System.Net;
 using System.Net.Sockets;
 
-namespace xoxoClient
+namespace xoxoChat
 {
     static class Program
     {

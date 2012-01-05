@@ -4,8 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Net.Sockets;
 using System.Threading;
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Formatters.Binary;
+using System.IO;
 
-namespace xoxoServer
+namespace xoxoChat
 {
     class ServerToClientBridge
     {
@@ -18,23 +21,31 @@ namespace xoxoServer
             this.netServ = netServ;
         }        
 
-        public void decideAction(string code, string msg)
-        {
-            if (code.Equals("ADD")) addNewUser(msg);
-            if (code.Equals("ALL")) sendMsgToAllClients(msg);
-        }
-
         private void addNewUser(string msg)
         {
             netServ.clients[netServ.clients.Count - 1].setName(msg);
         }
 
-        private void sendMsgToAllClients(string msg)
+        public void sendMsgToAllClients(messageToEveryone msg)
         {
             try
             {
+                dataTypes objToSend = new dataTypes();
+
+                objToSend.setType(typeof(messageToEveryone).ToString());
+                objToSend.setObject(msg);
+
+                IFormatter formatter = new BinaryFormatter();
+                Stream stream = new MemoryStream();
+
+                formatter.Serialize(stream, objToSend);
+      
+                byte[] buffer = ((MemoryStream)stream).ToArray();
+
                 for (int index = 0; index < netServ.clients.Count; index++)
-                    sendMsgToSpecificClient(netServ.clients[index].getSocket(), "ALL~" + msg);
+                    netServ.clients[index].getSocket().Send(buffer, buffer.Length, 0);
+
+                stream.Close();
             }
             catch (Exception ex)
             {

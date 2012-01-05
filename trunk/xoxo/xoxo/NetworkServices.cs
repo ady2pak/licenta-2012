@@ -2,8 +2,11 @@
 using System.Net;
 using System.Net.Sockets;
 using System.Windows.Forms;
+using System.Runtime.Serialization;
+using System.IO;
+using System.Runtime.Serialization.Formatters.Binary;
 
-namespace xoxoClient
+namespace xoxoChat
 {
     public class NetworkServices
     {
@@ -58,14 +61,25 @@ namespace xoxoClient
         {
             try
             {
-                SocketPacket theSockId = (SocketPacket)asyn.AsyncState;
-                int iRx = theSockId.thisSocket.EndReceive(asyn);
-                char[] chars = new char[iRx + 1];
-                System.Text.Decoder d = System.Text.Encoding.UTF8.GetDecoder();
-                int charLen = d.GetChars(theSockId.dataBuffer, 0, iRx, chars, 0);
-                System.String serverResponse = new System.String(chars);
-                
-                decideBasedOnResponse(serverResponse);
+                SocketPacket socketData = (SocketPacket)asyn.AsyncState;
+
+                int bytesReceived = 0;
+                bytesReceived = socketData.thisSocket.EndReceive(asyn);
+                byte[] buffer = new byte[bytesReceived + 1];
+
+                buffer = socketData.dataBuffer;
+
+                IFormatter formatter = new BinaryFormatter();
+                Stream stream = new MemoryStream();
+
+                stream.Write(buffer, 0, buffer.Length);
+                stream.Seek(0, 0);
+
+                dataTypes objReceived = new dataTypes();
+
+                objReceived = (dataTypes)formatter.Deserialize(stream);
+
+                parseObject(objReceived);
 
                 WaitForData();
             }
@@ -77,6 +91,16 @@ namespace xoxoClient
             {
                 MessageBox.Show(se.Message);
             }          
+        }
+
+        private void parseObject(dataTypes objReceived)
+        {
+            if (objReceived.objectType.Equals(typeof(messageToEveryone).ToString()))
+            {
+                messageToEveryone msg = (messageToEveryone)objReceived.myObject;
+                clientMW.appendText("["+ msg.whoAmI + "] " + msg.message);
+            }
+            else throw new Exception("Unsupported object type");
         }
 
         void decideBasedOnResponse(string response)

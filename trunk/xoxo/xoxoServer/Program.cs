@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows.Forms;
 
-namespace xoxoServer
+namespace xoxoChat
 {
     static class Program
     {

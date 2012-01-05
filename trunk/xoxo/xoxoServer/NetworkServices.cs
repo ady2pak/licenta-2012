@@ -3,8 +3,11 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Runtime.Serialization;
+using System.IO;
+using System.Runtime.Serialization.Formatters.Binary;
 
-namespace xoxoServer
+namespace xoxoChat
 {
     class NetworkServices
     {
@@ -83,7 +86,7 @@ namespace xoxoServer
         public class SocketPacket
         {
             public Socket m_currentSocket;
-            public byte[] dataBuffer = new byte[100];
+            public byte[] dataBuffer = new byte[1000];
         }
 
         public void WaitForData(Socket m_socWorker)
@@ -114,16 +117,23 @@ namespace xoxoServer
             {
                 SocketPacket socketData = (SocketPacket)asyn.AsyncState;
 
-                int iRx = 0;
-                iRx = socketData.m_currentSocket.EndReceive(asyn);
-                char[] chars = new char[iRx + 1];
-                System.Text.Decoder d = System.Text.Encoding.UTF8.GetDecoder();
-                int charLen = d.GetChars(socketData.dataBuffer, 0, iRx, chars, 0);
-                System.String clientResponse = new System.String(chars);
+                int bytesReceived = 0;
+                bytesReceived = socketData.m_currentSocket.EndReceive(asyn);
+                byte[] buffer = new byte[bytesReceived + 1];
 
-                serverMW.appendDebugOutput(clientResponse);
+                buffer = socketData.dataBuffer;
 
-                STCB.decideAction(clientResponse.Substring(0, 3), clientResponse.Substring(clientResponse.IndexOf("~") + 1, clientResponse.Length - 4));
+                IFormatter formatter = new BinaryFormatter();
+                Stream stream = new MemoryStream();
+
+                stream.Write(buffer, 0, buffer.Length);
+                stream.Seek(0, 0);
+
+                dataTypes objReceived = new dataTypes();
+
+                objReceived = (dataTypes)formatter.Deserialize(stream);
+
+                parseObject(objReceived);
                 
                 WaitForData(socketData.m_currentSocket);
             }
@@ -135,6 +145,26 @@ namespace xoxoServer
             {
                 serverMW.appendDebugOutput(se.Message);
             }
+            catch (Exception ex)
+            {
+                serverMW.appendDebugOutput(ex.Message);
+            }
+        }
+
+        private void parseObject(dataTypes objReceived)
+        {
+            if (objReceived.objectType.Equals(typeof(loginInfo).ToString())) 
+            {
+                loginInfo clientInfo = (loginInfo)objReceived.myObject;
+                bool result = DS.isClientAuthorized((loginInfo)objReceived.myObject);
+                if (result) serverMW.appendDebugOutput("New client connecterd : " + clientInfo.username);
+            }
+            if (objReceived.objectType.Equals(typeof(messageToEveryone).ToString()))
+            {
+                messageToEveryone msg = (messageToEveryone)objReceived.myObject;
+                STCB.sendMsgToAllClients(msg);
+            }
+                
         }
 
         public Socket getUserSocketByName(string username)

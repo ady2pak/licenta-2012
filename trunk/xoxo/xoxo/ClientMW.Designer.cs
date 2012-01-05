@@ -1,4 +1,4 @@
-﻿namespace xoxoClient
+﻿namespace xoxoChat
 {
     partial class ClientMW
     {
@@ -48,6 +48,7 @@
             this.msgHst.Size = new System.Drawing.Size(291, 380);
             this.msgHst.TabIndex = 9;
             this.msgHst.Visible = false;
+            this.msgHst.TextChanged += new System.EventHandler(this.msgHst_TextChanged);
             // 
             // msgBox
             // 
@@ -136,6 +137,7 @@
             this.Controls.Add(this.msgHst);
             this.Name = "ClientMW";
             this.Text = "xoxo";
+            this.Load += new System.EventHandler(this.ClientMW_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
 
