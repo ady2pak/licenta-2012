@@ -2,7 +2,7 @@
 using System.Data.SqlClient;
 using System.Data.SqlServerCe;
 
-namespace xoxoServer
+namespace xoxoChat
 {
     class DatabaseServices
     {
@@ -46,6 +46,11 @@ namespace xoxoServer
             }
 
         }
-        
+
+
+        internal bool isClientAuthorized(loginInfo loginInfo)
+        {
+            return true;
+        }
     }
 }

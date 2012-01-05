@@ -1,4 +1,4 @@
-﻿namespace xoxoServer
+﻿namespace xoxoChat
 {
     partial class ServerMW
     {

@@ -2,15 +2,19 @@
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Formatters.Binary;
+using System.IO;
 
-namespace xoxoClient
+namespace xoxoChat
 {
     public partial class ClientMW : Form
     {
         Encoding encoding = Encoding.UTF8;
         NetworkServices netServ;
-        string _username;
-        string _password;
+
+        string username;
+
         public bool _connected = false;
 
         delegate void appendTextCallback(string text);
@@ -23,19 +27,61 @@ namespace xoxoClient
        
         private void sendBTN_Click(object sender, EventArgs e)
         {
-            String msg = "ALL~" + msgBox.Text.Trim();
-            netServ.m_clientSocket.Send(this.encoding.GetBytes(msg));
-            msgHst.AppendText(Environment.NewLine + ">>" + msg);
-            msgBox.Text = "";
+            messageToEveryone msg = new messageToEveryone();
+
+            msg.setMessage(msgBox.Text.Trim());
+            msg.setMe(username);
+
+            dataTypes objToSend = new dataTypes();
+
+            objToSend.setType(typeof(messageToEveryone).ToString());
+            objToSend.setObject(msg);
+
+            IFormatter formatter = new BinaryFormatter();
+            Stream stream = new MemoryStream();
+
+            formatter.Serialize(stream, objToSend);
+      
+            byte[] buffer = ((MemoryStream)stream).ToArray();
+
+            netServ.m_clientSocket.Send(buffer, buffer.Length, 0);
+
+            stream.Close();
+
+            msgBox.Clear();
+
         }
 
         private void loginBTN_Click(object sender, EventArgs e)
         {
-            _username = usernameTB.Text;
-            _password = passwordTB.Text;
-            netServ.m_clientSocket.Send(encoding.GetBytes("ADD~" + _username));
-            while (!_connected) ;
+            loginInfo myLoginInfo = new loginInfo();
+
+            username = usernameTB.Text.Trim().ToString();
+            myLoginInfo.setUsername(username);
+            myLoginInfo.setPassword(passwordTB.Text.Trim().ToString());
+
+            dataTypes objToSend = new dataTypes();
+
+            objToSend.setType(typeof(loginInfo).ToString());
+            objToSend.setObject(myLoginInfo);
+
+            IFormatter formatter = new BinaryFormatter();
+            Stream stream = new MemoryStream();
+
+            formatter.Serialize(stream, objToSend);
+
+            //stream.Flush();
+
+            byte[] buffer = ((MemoryStream)stream).ToArray();
+
+            netServ.m_clientSocket.Send(buffer, buffer.Length, 0);
+
+            stream.Close();
+
             showChat();
+
+            msgHst.Text = "Welcome to xoxoChat. You are connected as [" + username + "].";
+
         }
 
         public void showChat()
@@ -62,6 +108,16 @@ namespace xoxoClient
             {
                 this.msgHst.AppendText(Environment.NewLine + msg);
             }
+        }
+
+        private void msgHst_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void ClientMW_Load(object sender, EventArgs e)
+        {
+
         }          
     }
 }
