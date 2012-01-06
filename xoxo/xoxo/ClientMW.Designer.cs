@@ -72,7 +72,7 @@
             // 
             // loginBTN
             // 
-            this.loginBTN.Location = new System.Drawing.Point(123, 139);
+            this.loginBTN.Location = new System.Drawing.Point(219, 253);
             this.loginBTN.Name = "loginBTN";
             this.loginBTN.Size = new System.Drawing.Size(75, 23);
             this.loginBTN.TabIndex = 17;
@@ -83,7 +83,7 @@
             // loginLBL
             // 
             this.loginLBL.AutoSize = true;
-            this.loginLBL.Location = new System.Drawing.Point(62, 52);
+            this.loginLBL.Location = new System.Drawing.Point(146, 176);
             this.loginLBL.Name = "loginLBL";
             this.loginLBL.Size = new System.Drawing.Size(221, 13);
             this.loginLBL.TabIndex = 16;
@@ -93,7 +93,7 @@
             // 
             this.passwordLBL.AutoSize = true;
             this.passwordLBL.Cursor = System.Windows.Forms.Cursors.Default;
-            this.passwordLBL.Location = new System.Drawing.Point(64, 116);
+            this.passwordLBL.Location = new System.Drawing.Point(153, 230);
             this.passwordLBL.Name = "passwordLBL";
             this.passwordLBL.Size = new System.Drawing.Size(53, 13);
             this.passwordLBL.TabIndex = 15;
@@ -102,7 +102,7 @@
             // usernameLBL
             // 
             this.usernameLBL.AutoSize = true;
-            this.usernameLBL.Location = new System.Drawing.Point(62, 89);
+            this.usernameLBL.Location = new System.Drawing.Point(151, 204);
             this.usernameLBL.Name = "usernameLBL";
             this.usernameLBL.Size = new System.Drawing.Size(55, 13);
             this.usernameLBL.TabIndex = 14;
@@ -110,14 +110,14 @@
             // 
             // passwordTB
             // 
-            this.passwordTB.Location = new System.Drawing.Point(123, 113);
+            this.passwordTB.Location = new System.Drawing.Point(212, 227);
             this.passwordTB.Name = "passwordTB";
             this.passwordTB.Size = new System.Drawing.Size(149, 20);
             this.passwordTB.TabIndex = 13;
             // 
             // usernameTB
             // 
-            this.usernameTB.Location = new System.Drawing.Point(123, 86);
+            this.usernameTB.Location = new System.Drawing.Point(212, 201);
             this.usernameTB.Name = "usernameTB";
             this.usernameTB.Size = new System.Drawing.Size(149, 20);
             this.usernameTB.TabIndex = 12;
@@ -129,6 +129,7 @@
             this.userlist.Name = "userlist";
             this.userlist.Size = new System.Drawing.Size(146, 381);
             this.userlist.TabIndex = 18;
+            this.userlist.Visible = false;
             // 
             // ClientMW
             // 
@@ -147,6 +148,7 @@
             this.Controls.Add(this.msgHst);
             this.Name = "ClientMW";
             this.Text = "xoxo";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.ClientMW_FormClosing);
             this.Load += new System.EventHandler(this.ClientMW_Load);
             this.ResumeLayout(false);
             this.PerformLayout();

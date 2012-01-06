@@ -55,9 +55,22 @@ namespace xoxoChat
             this.message = message;
         }
     }
+
     [Serializable()]
     class userList
     {
         public List<string> users = new List<string>();
+    }
+
+
+    [Serializable()]
+    class iQuit
+    {
+        public string username;
+
+        public void setUsername(string username)
+        {
+            this.username = username;
+        }
     }
 }

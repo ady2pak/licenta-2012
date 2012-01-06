@@ -94,6 +94,7 @@ namespace xoxoChat
             this.msgHst.Visible = true;
             this.msgBox.Visible = true;
             this.sendBTN.Visible = true;
+            this.userlist.Visible = true;
         }
 
         public void appendText(string msg)
@@ -134,5 +135,38 @@ namespace xoxoChat
                 this.userlist.DataSource = list;
             }
         }
+
+        private void ClientMW_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            if (MessageBox.Show("Are you sure you want to exit the application?", "My Application",
+                MessageBoxButtons.YesNo) == DialogResult.No)
+            {
+                e.Cancel = true;
+            }
+            //else tellServerToRemoveMe();
+        }
+
+       /* private void tellServerToRemoveMe()
+        {
+            iQuit rageQuit = new iQuit();
+
+            rageQuit.setUsername(username);
+
+            dataTypes objToSend = new dataTypes();
+
+            objToSend.setType(typeof(iQuit).ToString());
+            objToSend.setObject(rageQuit);
+
+            IFormatter formatter = new BinaryFormatter();
+            Stream stream = new MemoryStream();
+
+            formatter.Serialize(stream, objToSend);
+
+            byte[] buffer = ((MemoryStream)stream).ToArray();
+
+            netServ.m_clientSocket.Send(buffer, buffer.Length, 0);
+
+            stream.Close();
+        }*/
     }
 }
