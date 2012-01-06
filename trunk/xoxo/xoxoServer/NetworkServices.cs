@@ -144,7 +144,35 @@ namespace xoxoChat
             }
             catch (SocketException se)
             {
-                serverMW.appendDebugOutput(se.Message);
+                if (se.ErrorCode.ToString().Equals("10054"))
+                {
+
+                    SocketPacket socketData = (SocketPacket)asyn.AsyncState;
+
+                    serverMW.appendDebugOutput("Client disconnected : ");
+
+                    for (int i = 0; i < m_clientCount; i++)
+                    {
+                        if (m_socWorker[i] == socketData.m_currentSocket)
+                            for (int j = i; j < m_clientCount - 1; j++)
+                            {
+                                m_socWorker[j] = m_socWorker[j + 1];
+                            }
+                        m_clientCount--;
+                    }
+
+                    for (int i = 0; i < clients.Count; i++)
+                        if (clients[i].getSocket() == socketData.m_currentSocket)
+                        {
+                            serverMW.appendDebugOutput(clients[i].getUserName());
+                            clients.Remove(clients[i]);
+
+                        }
+
+
+                    socketData.m_currentSocket.Close();
+                    socketData.m_currentSocket.Dispose();
+                }
             }
             catch (Exception ex)
             {
@@ -179,7 +207,11 @@ namespace xoxoChat
             {
                 messageToEveryone msg = (messageToEveryone)objReceived.myObject;
                 STCB.sendMsgToAllClients(msg);
-            }            
+            }
+            if (objReceived.objectType.Equals(typeof(iQuit).ToString()))
+            {
+
+            }
                 
         }
 
