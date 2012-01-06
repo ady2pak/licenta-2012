@@ -64,6 +64,7 @@ namespace xoxoChat
 
                 Client _newUser = new Client(m_socWorker[m_clientCount], userName);
                 clients.Add(_newUser);
+
                 WaitForData(m_socWorker[m_clientCount]);
                 ++m_clientCount;
 
@@ -133,7 +134,7 @@ namespace xoxoChat
 
                 objReceived = (dataTypes)formatter.Deserialize(stream);
 
-                parseObject(objReceived);
+                parseObject(objReceived, socketData.m_currentSocket);
                 
                 WaitForData(socketData.m_currentSocket);
             }
@@ -151,19 +152,34 @@ namespace xoxoChat
             }
         }
 
-        private void parseObject(dataTypes objReceived)
+        private void parseObject(dataTypes objReceived, Socket m_socWorker)
         {
             if (objReceived.objectType.Equals(typeof(loginInfo).ToString())) 
             {
                 loginInfo clientInfo = (loginInfo)objReceived.myObject;
                 bool result = DS.isClientAuthorized((loginInfo)objReceived.myObject);
                 if (result) serverMW.appendDebugOutput("New client connecterd : " + clientInfo.username);
+                
+                for (int i = 0; i < clients.Count; i++)
+                {
+                    if (clients[i].getSocket() == m_socWorker)
+                        clients[i].setName(clientInfo.username);
+                }
+
+                userList connectedUsers = new userList();
+                for (int index = 0; index < clients.Count; index++)
+                {
+                    connectedUsers.users.Add(clients[index].getUserName());
+                }
+
+                STCB.sendUserlistToClients(connectedUsers);
+
             }
             if (objReceived.objectType.Equals(typeof(messageToEveryone).ToString()))
             {
                 messageToEveryone msg = (messageToEveryone)objReceived.myObject;
                 STCB.sendMsgToAllClients(msg);
-            }
+            }            
                 
         }
 

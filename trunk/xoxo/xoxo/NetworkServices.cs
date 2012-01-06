@@ -99,6 +99,11 @@ namespace xoxoChat
                 messageToEveryone msg = (messageToEveryone)objReceived.myObject;
                 clientMW.appendText("["+ msg.whoAmI + "] " + msg.message);
             }
+            else if (objReceived.objectType.Equals(typeof(userList).ToString()))
+            {
+                userList onlineClients = (userList)objReceived.myObject;
+                clientMW.appendUsers(onlineClients.users);
+            }
             else throw new Exception("Unsupported object type");
         }
     }

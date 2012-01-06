@@ -4,6 +4,7 @@ using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Windows.Forms;
+using System.Collections.Generic;
 
 namespace xoxoChat
 {
@@ -17,6 +18,7 @@ namespace xoxoChat
         public bool _connected = false;
 
         delegate void appendTextCallback(string text);
+        delegate void appendUsersCallback(List<string> list);
         
         public ClientMW()
         {
@@ -115,6 +117,22 @@ namespace xoxoChat
         private void ClientMW_Load(object sender, EventArgs e)
         {
 
-        }          
+        }
+
+        public void appendUsers(System.Collections.Generic.List<string> list)
+        {
+
+            if (this.userlist.InvokeRequired)
+            {
+                appendUsersCallback d = new appendUsersCallback(appendUsers);
+                this.Invoke(d, new object[] { null });
+                this.Invoke(d, new object[] { list });
+            }
+            else
+            {
+                this.userlist.DataSource = null;
+                this.userlist.DataSource = list;
+            }
+        }
     }
 }

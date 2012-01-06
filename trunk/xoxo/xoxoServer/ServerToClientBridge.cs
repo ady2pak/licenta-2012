@@ -53,18 +53,40 @@ namespace xoxoChat
             }
         }
 
-        private void sendMsgToSpecificClient(Socket socket, string msg)
+        internal void sendMsgToClient(string toWho, Object objectToSend)
         {
-            try
-            {
-                socket.Send(encoding.GetBytes(msg));
-            }
-            catch (Exception ex)
-            {
-                
-                netServ.serverMW.appendDebugOutput(ex.ToString());
-            }
+             dataTypes objToSend = new dataTypes();
+
+             objToSend.setType(typeof(userList).ToString());
+             objToSend.setObject(objectToSend);
+
+             IFormatter formatter = new BinaryFormatter();
+             Stream stream = new MemoryStream();
+
+             formatter.Serialize(stream, objToSend);
+      
+             byte[] buffer = ((MemoryStream)stream).ToArray();
+             netServ.getUserSocketByName(toWho).Send(buffer, buffer.Length, 0);
         }
-       
+
+        internal void sendUserlistToClients(userList connectedUsers)
+        {
+            dataTypes objToSend = new dataTypes();
+
+            objToSend.setType(typeof(userList).ToString());
+            objToSend.setObject(connectedUsers);
+
+            IFormatter formatter = new BinaryFormatter();
+            Stream stream = new MemoryStream();
+
+            formatter.Serialize(stream, objToSend);
+
+            byte[] buffer = ((MemoryStream)stream).ToArray();
+
+            for (int index = 0; index < netServ.clients.Count; index++)
+                netServ.clients[index].getSocket().Send(buffer, buffer.Length, 0);
+
+            stream.Close();
+        }
     }
 }
