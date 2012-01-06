@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace xoxoChat
 {
@@ -53,5 +54,10 @@ namespace xoxoChat
         {
             this.message = message;
         }
+    }
+    [Serializable()]
+    class userList
+    {
+        public List<string> users = new List<string>();
     }
 }

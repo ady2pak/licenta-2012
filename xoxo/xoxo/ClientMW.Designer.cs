@@ -37,6 +37,7 @@
             this.usernameLBL = new System.Windows.Forms.Label();
             this.passwordTB = new System.Windows.Forms.TextBox();
             this.usernameTB = new System.Windows.Forms.TextBox();
+            this.userlist = new System.Windows.Forms.ListBox();
             this.SuspendLayout();
             // 
             // msgHst
@@ -52,15 +53,15 @@
             // 
             // msgBox
             // 
-            this.msgBox.Location = new System.Drawing.Point(34, 451);
+            this.msgBox.Location = new System.Drawing.Point(33, 409);
             this.msgBox.Name = "msgBox";
-            this.msgBox.Size = new System.Drawing.Size(291, 20);
+            this.msgBox.Size = new System.Drawing.Size(445, 20);
             this.msgBox.TabIndex = 10;
             this.msgBox.Visible = false;
             // 
             // sendBTN
             // 
-            this.sendBTN.Location = new System.Drawing.Point(249, 478);
+            this.sendBTN.Location = new System.Drawing.Point(403, 435);
             this.sendBTN.Name = "sendBTN";
             this.sendBTN.Size = new System.Drawing.Size(75, 23);
             this.sendBTN.TabIndex = 11;
@@ -121,11 +122,20 @@
             this.usernameTB.Size = new System.Drawing.Size(149, 20);
             this.usernameTB.TabIndex = 12;
             // 
+            // userlist
+            // 
+            this.userlist.FormattingEnabled = true;
+            this.userlist.Location = new System.Drawing.Point(332, 23);
+            this.userlist.Name = "userlist";
+            this.userlist.Size = new System.Drawing.Size(146, 381);
+            this.userlist.TabIndex = 18;
+            // 
             // ClientMW
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(355, 518);
+            this.ClientSize = new System.Drawing.Size(512, 477);
+            this.Controls.Add(this.userlist);
             this.Controls.Add(this.loginBTN);
             this.Controls.Add(this.loginLBL);
             this.Controls.Add(this.passwordLBL);
@@ -154,6 +164,7 @@
         private System.Windows.Forms.Label usernameLBL;
         private System.Windows.Forms.TextBox passwordTB;
         private System.Windows.Forms.TextBox usernameTB;
+        private System.Windows.Forms.ListBox userlist;
 
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace xoxoChat
 {
@@ -26,12 +27,12 @@ namespace xoxoChat
     {
         public string username;
         public string password;
-        
+
         public void setUsername(String username)
         {
             this.username = username;
         }
-        
+
         public void setPassword(String password)
         {
             this.password = password;
@@ -53,5 +54,10 @@ namespace xoxoChat
         {
             this.message = message;
         }
+    }
+    [Serializable()]
+    class userList
+    {
+        public List<string> users = new List<string>();
     }
 }
