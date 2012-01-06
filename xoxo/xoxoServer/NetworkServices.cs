@@ -172,6 +172,15 @@ namespace xoxoChat
 
                     socketData.m_currentSocket.Close();
                     socketData.m_currentSocket.Dispose();
+
+                    userList connectedUsers = new userList();
+                    
+                    for (int index = 0; index < clients.Count; index++)
+                    {
+                        connectedUsers.users.Add(clients[index].getUserName());
+                    }
+
+                    STCB.sendUserlistToClients(connectedUsers);
                 }
             }
             catch (Exception ex)
