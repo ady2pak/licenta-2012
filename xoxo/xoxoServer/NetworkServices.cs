@@ -87,7 +87,7 @@ namespace xoxoChat
         public class SocketPacket
         {
             public Socket m_currentSocket;
-            public byte[] dataBuffer = new byte[1000];
+            public byte[] dataBuffer = new byte[(1024 * 1024 * 4) + 100];
         }
 
         public void WaitForData(Socket m_socWorker)
@@ -135,6 +135,8 @@ namespace xoxoChat
                 objReceived = (dataTypes)formatter.Deserialize(stream);
 
                 parseObject(objReceived, socketData.m_currentSocket);
+
+                stream.Close();
                 
                 WaitForData(socketData.m_currentSocket);
             }
@@ -210,7 +212,6 @@ namespace xoxoChat
                 }
 
                 STCB.sendUserlistToClients(connectedUsers);
-
             }
             if (objReceived.objectType.Equals(typeof(messageToEveryone).ToString()))
             {
@@ -220,6 +221,39 @@ namespace xoxoChat
             if (objReceived.objectType.Equals(typeof(iQuit).ToString()))
             {
 
+            }
+            if (objReceived.objectType.Equals(typeof(dataFile).ToString()))
+            {
+                string receivedPath = "C:/";
+                dataFile fileReceived = (dataFile)objReceived.myObject;
+                int fileNameLen = BitConverter.ToInt32(fileReceived.buffer, 0);
+                string fileName = Encoding.ASCII.GetString(fileReceived.buffer, 4, fileNameLen);
+                fileName = fileName.Substring(fileName.LastIndexOf(@"\") + 1);
+
+                
+                BinaryWriter bWrite = new BinaryWriter(File.Open(receivedPath + fileName, FileMode.Append));                
+                bWrite.Write(fileReceived.buffer, 4 + fileNameLen, fileReceived.buffer.Length - 4 - fileNameLen);
+
+                bWrite.Close();
+
+                serverMW.appendDebugOutput(receivedPath + fileName);
+
+                datafileReceived dfR = new datafileReceived();
+                dfR.setFilename(Encoding.ASCII.GetString(fileReceived.buffer, 4, fileNameLen));
+                dfR.setPartNo(Int32.Parse(fileName.Substring(fileName.LastIndexOf(".") + 1)));
+                dfR.setTotalPartNo(100);
+                
+                dataTypes wasReceived = new dataTypes();
+                wasReceived.setType(typeof(datafileReceived).ToString());
+                wasReceived.setObject(dfR);
+
+                IFormatter formatter = new BinaryFormatter();
+                Stream stream = new MemoryStream();
+
+                formatter.Serialize(stream, wasReceived);
+
+                byte[] buffer = ((MemoryStream)stream).ToArray();
+                m_socWorker.Send(buffer, buffer.Length, 0);
             }
                 
         }
@@ -236,4 +270,6 @@ namespace xoxoChat
             return null;
         }
     }
+
+
 }

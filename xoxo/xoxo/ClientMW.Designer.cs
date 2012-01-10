@@ -38,6 +38,7 @@
             this.passwordTB = new System.Windows.Forms.TextBox();
             this.usernameTB = new System.Windows.Forms.TextBox();
             this.userlist = new System.Windows.Forms.ListBox();
+            this.uploadFileBTN = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // msgHst
@@ -131,11 +132,23 @@
             this.userlist.TabIndex = 18;
             this.userlist.Visible = false;
             // 
+            // uploadFileBTN
+            // 
+            this.uploadFileBTN.Location = new System.Drawing.Point(33, 434);
+            this.uploadFileBTN.Name = "uploadFileBTN";
+            this.uploadFileBTN.Size = new System.Drawing.Size(75, 23);
+            this.uploadFileBTN.TabIndex = 19;
+            this.uploadFileBTN.Text = "Upload File";
+            this.uploadFileBTN.UseVisualStyleBackColor = true;
+            this.uploadFileBTN.Visible = false;
+            this.uploadFileBTN.Click += new System.EventHandler(this.uploadFileBTN_Click);
+            // 
             // ClientMW
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(512, 477);
+            this.Controls.Add(this.uploadFileBTN);
             this.Controls.Add(this.userlist);
             this.Controls.Add(this.loginBTN);
             this.Controls.Add(this.loginLBL);
@@ -167,6 +180,7 @@
         private System.Windows.Forms.TextBox passwordTB;
         private System.Windows.Forms.TextBox usernameTB;
         private System.Windows.Forms.ListBox userlist;
+        private System.Windows.Forms.Button uploadFileBTN;
 
     }
 }
