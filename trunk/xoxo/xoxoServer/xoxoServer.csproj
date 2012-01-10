@@ -97,6 +97,7 @@
       <DependentUpon>dataSet.xsd</DependentUpon>
     </Compile>
     <Compile Include="dataTypes.cs" />
+    <Compile Include="fileTransferProtocol.cs" />
     <Compile Include="ServerMW.cs">
       <SubType>Form</SubType>
     </Compile>

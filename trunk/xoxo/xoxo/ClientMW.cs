@@ -12,6 +12,7 @@ namespace xoxoChat
     {
         Encoding encoding = Encoding.UTF8;
         NetworkServices netServ;
+        fileTransferProtocol fTP;
 
         string username;
 
@@ -23,6 +24,7 @@ namespace xoxoChat
         public ClientMW()
         {
             netServ = new NetworkServices(this);
+            fTP = new fileTransferProtocol(netServ);
             InitializeComponent();
         }
        
@@ -95,6 +97,7 @@ namespace xoxoChat
             this.msgBox.Visible = true;
             this.sendBTN.Visible = true;
             this.userlist.Visible = true;
+            this.uploadFileBTN.Visible = true;
         }
 
         public void appendText(string msg)
@@ -146,6 +149,24 @@ namespace xoxoChat
             //else tellServerToRemoveMe();
         }
 
+        private void uploadFileBTN_Click(object sender, EventArgs e)
+        {
+            fTP.SplitUp(SelectFile());
+            //fTP.RebuildFile(SelectFile());
+        }
+
+        private string SelectFile()
+        {
+            OpenFileDialog fbd = new OpenFileDialog();
+            if (fbd.ShowDialog() != DialogResult.OK)
+            {
+                MessageBox.Show("No file selected");
+                return "";
+            }
+            else
+                return fbd.FileName;
+        }
+
        /* private void tellServerToRemoveMe()
         {
             iQuit rageQuit = new iQuit();
@@ -168,5 +189,10 @@ namespace xoxoChat
 
             stream.Close();
         }*/
+
+        internal void sendNextPart(string filename, int partNo)
+        {
+            fTP.sendNextPart(filename, partNo);
+        }
     }
 }

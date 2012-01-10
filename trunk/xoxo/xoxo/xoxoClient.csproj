@@ -53,6 +53,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="dataTypes.cs" />
+    <Compile Include="fileTransferProtocol.cs" />
     <Compile Include="NetworkServices.cs" />
     <Compile Include="ClientMW.cs">
       <SubType>Form</SubType>
