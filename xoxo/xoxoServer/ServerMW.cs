@@ -12,6 +12,7 @@ namespace xoxoChat
             InitializeComponent();
             
             new NetworkServices(this);
+            new fileTransferProtocol();
             
             debugOutput.AppendText("Server Started.");
         }

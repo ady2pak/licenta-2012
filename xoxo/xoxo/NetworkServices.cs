@@ -107,7 +107,7 @@ namespace xoxoChat
             else if (objReceived.objectType.Equals(typeof(datafileReceived).ToString()))
             {
                 datafileReceived dfR = (datafileReceived)objReceived.myObject;
-                clientMW.sendNextPart(dfR.filename, dfR.partNo + 1);
+                //clientMW.sendNextPart(dfR.filename, dfR.partNo + 1);
                 
             }
             else throw new Exception("Unsupported object type");

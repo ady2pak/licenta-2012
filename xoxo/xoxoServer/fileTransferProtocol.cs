@@ -4,115 +4,118 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using System.IO;
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Formatters.Binary;
+using System.Threading;
+using System.Net.Sockets;
+using System.Net;
 
 namespace xoxoChat
 {
-    class fileTransferProtocol
+    public class fileTransferProtocol
     {
-        int partSize = 1024 * 1024 * 2;
-        int counter = 0;
+        Thread t1;
+        int flag = 0;
+        string receivedPath = "yok";
+        public delegate void MyDelegate();
 
-        public void SplitUp(string filename,int fileSizeInMB)
+        public fileTransferProtocol()
         {
-            if (filename.Length < 1) {
-                MessageBox.Show("Invalid filename.");
-                return;
-            }
-
-            counter = 0;
-
-            
-            byte []buffer=new byte [partSize];
-            string curFileName;
-
-            BinaryReader br=new BinaryReader(File.Open(filename, FileMode.Open));
-            
-            //Check if slice size is grater than file size
-            if (br.BaseStream.Length < partSize)
-                partSize = (int)br.BaseStream.Length;
-
-            //Slicing work starts here
-            while (br.BaseStream.Length > partSize * counter)
-            {
-                if (br.BaseStream.Length > partSize * (counter + 1))
-                {
-                    br.BaseStream.Read(buffer, 0, partSize);
-                    curFileName = filename + "." + counter.ToString();
-                }
-                else
-                {
-                    int remainLen = (int)br.BaseStream.Length - partSize * counter;
-                    buffer = new byte[remainLen];
-                    br.BaseStream.Read(buffer, 0, remainLen);
-                    curFileName = filename + "." + counter.ToString() + ".E";
-                }
-                
-                if (File.Exists(curFileName))
-                    File.Delete(curFileName);
-
-                File.WriteAllBytes(curFileName, buffer);
-                counter++;
-            }
-            br.Close();
-            MessageBox.Show("File spilt successful.");
+            t1 = new Thread(new ThreadStart(StartListening));
+            t1.Start();
         }
 
-        public void RebuildFile(string firstFileName)
+        public class StateObject
         {
-            if (firstFileName.Length < 1) {
-                MessageBox.Show("Invalid Filname");
-                return;
-            }
+            // Client socket.
+            public Socket workSocket = null;
 
-            string endPart = firstFileName;
-            string orgFile = "";
+            public const int BufferSize = 1024;
+            // Receive buffer.
+            public byte[] buffer = new byte[BufferSize];
+        }
 
-            orgFile = endPart.Substring(0, endPart.LastIndexOf("."));
-            endPart = endPart.Substring(endPart.LastIndexOf(".") + 1);
+        public static ManualResetEvent allDone = new ManualResetEvent(false);
 
-            if (endPart == "E") //If only one slice is there
+        public void StartListening()
+        {
+            byte[] bytes = new Byte[1024];
+            IPEndPoint ipEnd = new IPEndPoint(IPAddress.Any, 9050);
+            Socket listener = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            try
             {
-                orgFile = orgFile.Substring(0, orgFile.LastIndexOf("."));
-                endPart = "0";
-            }
-
-            if (File.Exists(orgFile))
-            {
-                if (MessageBox.Show(orgFile + " already exists, do you want to delete it", "", MessageBoxButtons.YesNo) == DialogResult.Yes)
-                    File.Delete(orgFile);
-                else
+                listener.Bind(ipEnd);
+                listener.Listen(100);
+                while (true)
                 {
-                    MessageBox.Show("File not assembled. Operation cancelled by user.");
-                    return;
+                    allDone.Reset();
+                    listener.BeginAccept(new AsyncCallback(AcceptCallback), listener);
+                    allDone.WaitOne();
+
                 }
             }
- 
-            //Assembling starts from here
-            BinaryWriter bw = new BinaryWriter(File.Open(orgFile, FileMode.Append));
-            string nextFileName = "";
-            byte []buffer=new byte [bw.BaseStream.Length];
-
-            
-            int counter=int.Parse(endPart);
-            while(true)
+            catch (Exception ex)
             {
-                nextFileName = orgFile + "." + counter.ToString();
-                if (File.Exists(nextFileName + ".E"))
+
+            }
+
+        }
+        public void AcceptCallback(IAsyncResult ar)
+        {
+
+            allDone.Set();
+
+
+            Socket listener = (Socket)ar.AsyncState;
+            Socket handler = listener.EndAccept(ar);
+
+
+            StateObject state = new StateObject();
+            state.workSocket = handler;
+            handler.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0,
+            new AsyncCallback(ReadCallback), state);
+            flag = 0;
+        }
+
+        public void ReadCallback(IAsyncResult ar)
+        {
+
+            int fileNameLen = 1;
+            String content = String.Empty;
+            StateObject state = (StateObject)ar.AsyncState;
+            Socket handler = state.workSocket;
+            int bytesRead = handler.EndReceive(ar);
+            if (bytesRead > 0)
+            {
+
+                if (flag == 0)
                 {
-                    //Last slice
-                    buffer = File.ReadAllBytes(nextFileName + ".E");
-                    bw.Write(buffer);
-                    break;
+                    fileNameLen = BitConverter.ToInt32(state.buffer, 0);
+                    string fileName = Encoding.UTF8.GetString(state.buffer, 4, fileNameLen);
+                    receivedPath = @"C:\" + fileName;
+                    flag++;
                 }
-                else
+                if (flag >= 1)
                 {
-                    buffer = File.ReadAllBytes(nextFileName);
-                    bw.Write(buffer);
+                    BinaryWriter writer = new BinaryWriter(File.Open(receivedPath, FileMode.Append));
+                    if (flag == 1)
+                    {
+                        writer.Write(state.buffer, 4 + fileNameLen, bytesRead - (4 + fileNameLen));
+                        flag++;
+                    }
+                    else
+                        writer.Write(state.buffer, 0, bytesRead);
+                    writer.Close();
+                    handler.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0,
+                    new AsyncCallback(ReadCallback), state);
                 }
-                counter++;
-            } 
-            bw.Close();
-            MessageBox.Show("File assebled successfully");
+
+            }
+            else
+            {
+                
+            }
+
         }
        
     }    

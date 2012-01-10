@@ -6,182 +6,59 @@ using System.Windows.Forms;
 using System.IO;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Threading;
+using System.Net.Sockets;
+using System.Net;
 
 namespace xoxoChat
 {
-    class fileTransferProtocol
+    public class fileTransferProtocol
     {
-        int partSize = 1024; // * 50;//1024;
-        int counter = 0;
-        NetworkServices netServ;
+        string splitter = "'\\'";
+        string fName;
+        string[] split = null;
+        byte[] clientData;
+        ClientMW clientMW;
+        string filename;
 
-        public fileTransferProtocol(NetworkServices netServ)
+        public fileTransferProtocol(ClientMW clientMW)
         {
-            this.netServ = netServ;
+            this.clientMW = clientMW;
         }
 
-        public void SplitUp(string filename)
+        public void OpenFile()
         {
-            if (filename.Length < 1) {
-                MessageBox.Show("Invalid filename.");
-                return;
-            }
-
-            counter = 0;
-            
-            byte []buffer=new byte [partSize];
-            string curFileName;
-
-            BinaryReader br=new BinaryReader(File.Open(filename, FileMode.Open));
-            string fileEnd = ".0";
-            //Check if slice size is grater than file size
-            if (br.BaseStream.Length < partSize)
-            {
-                partSize = (int)br.BaseStream.Length;
-                fileEnd = ".O.E";
-            }
-
-            //Slicing work starts here
-            while (br.BaseStream.Length > partSize * counter)
-            {
-                if (br.BaseStream.Length > partSize * (counter + 1))
-                {
-                    br.BaseStream.Read(buffer, 0, partSize);
-                    curFileName = filename + "." + counter.ToString();
-                }
-                else
-                {
-                    int remainLen = (int)br.BaseStream.Length - partSize * counter;
-                    buffer = new byte[remainLen];
-                    br.BaseStream.Read(buffer, 0, remainLen);
-                    curFileName = filename + "." + counter.ToString() + ".E";
-                }
-                
-                if (File.Exists(curFileName))
-                    File.Delete(curFileName);
-
-                File.WriteAllBytes(curFileName, buffer);
-                counter++;
-
-            }
-            br.Close();
-            MessageBox.Show("File spilt successful.");
-
-            sendNextPart(filename + fileEnd, 0);
-        }
-
-        public void sendNextPart(string firstFileName, int partNo)
-        {
-            if (firstFileName.Length < 1)
-            {
-                MessageBox.Show("Invalid Filename");
-                return;
-            }
-
-            string endPart = firstFileName;
-            string orgFile = "";
-
-            orgFile = endPart.Substring(0, endPart.LastIndexOf("."));
-            endPart = endPart.Substring(endPart.LastIndexOf(".") + 1);
-
-
-            if (File.Exists(orgFile + "." + partNo.ToString() + ".E")) sendPart(orgFile + "." + partNo.ToString(), true);
-            else sendPart(orgFile + "." + partNo.ToString(), false);
+            OpenFileDialog openFileDialog1 = new OpenFileDialog();
+            char[] delimiter = splitter.ToCharArray();
+            openFileDialog1.ShowDialog();
+            filename = openFileDialog1.FileName;
+            //clientMW.file.Text = openFileDialog1.FileName;
+            split = filename.Split(delimiter);
+            int limit = split.Length;
+            fName = split[limit - 1].ToString();
+            //if (textBox1.Text != null)
+                //button1.Enabled = true;
 
         }
 
-        void sendPart(string nextFileName, bool isLast)
+        public void SendFile()
         {
-            //MessageBox.Show(nextFileName);
+            Socket clientSock = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 
-            byte[] fileNameByte = Encoding.ASCII.GetBytes(nextFileName);
-            byte[] fileData;
-            if (isLast) fileData = File.ReadAllBytes(nextFileName + ".E");
-            else fileData = File.ReadAllBytes(nextFileName);
-            byte[] clientData = new byte[4 + fileNameByte.Length + fileData.Length];
-            byte[] fileNameLen = BitConverter.GetBytes(fileNameByte.Length);
+
+            byte[] fileName = Encoding.UTF8.GetBytes(fName); //file name
+            byte[] fileData = File.ReadAllBytes(filename); //file
+            byte[] fileNameLen = BitConverter.GetBytes(fileName.Length); //lenght of file name
+            clientData = new byte[4 + fileName.Length + fileData.Length];
 
             fileNameLen.CopyTo(clientData, 0);
-            fileNameByte.CopyTo(clientData, 4);
-            fileData.CopyTo(clientData, 4 + fileNameByte.Length);
+            fileName.CopyTo(clientData, 4);
+            fileData.CopyTo(clientData, 4 + fileName.Length);
 
-            dataFile fileToSend = new dataFile();
-            fileToSend.setFilename(nextFileName);
-            fileToSend.setData(clientData);
 
-            dataTypes objToSend = new dataTypes();
-            objToSend.setType(typeof(dataFile).ToString());
-            objToSend.setObject(fileToSend);
-
-            IFormatter formatter = new BinaryFormatter();
-            Stream stream = new MemoryStream();
-
-            formatter.Serialize(stream, objToSend);
-
-            byte[] buffer = ((MemoryStream)stream).ToArray();
-
-            netServ.m_clientSocket.Send(buffer, buffer.Length, 0);
-
-            stream.Close();
+            clientSock.Connect("localhost", 9050); //target machine's ip address and the port number
+            clientSock.Send(clientData);
+            clientSock.Close();
         }
-
-        public void RebuildFile(string firstFileName)
-        {
-            if (firstFileName.Length < 1) {
-                MessageBox.Show("Invalid Filename");
-                return;
-            }
-
-            string endPart = firstFileName;
-            string orgFile = "";
-
-            orgFile = endPart.Substring(0, endPart.LastIndexOf("."));
-            endPart = endPart.Substring(endPart.LastIndexOf(".") + 1);
-
-            if (endPart == "E") //If only one slice is there
-            {
-                orgFile = orgFile.Substring(0, orgFile.LastIndexOf("."));
-                endPart = "0";
-            }
-
-            if (File.Exists(orgFile))
-            {
-                if (MessageBox.Show(orgFile + " already exists, do you want to delete it", "", MessageBoxButtons.YesNo) == DialogResult.Yes)
-                    File.Delete(orgFile);
-                else
-                {
-                    MessageBox.Show("File not assembled. Operation cancelled by user.");
-                    return;
-                }
-            }
- 
-            //Assembling starts from here
-            BinaryWriter bw = new BinaryWriter(File.Open(orgFile, FileMode.Append));
-            string nextFileName = "";
-            byte []buffer=new byte [bw.BaseStream.Length];
-
-            
-            int counter=int.Parse(endPart);
-            while(true)
-            {
-                nextFileName = orgFile + "." + counter.ToString();
-                if (File.Exists(nextFileName + ".E"))
-                {
-                    //Last slice
-                    buffer = File.ReadAllBytes(nextFileName + ".E");
-                    bw.Write(buffer);
-                    break;
-                }
-                else
-                {
-                    buffer = File.ReadAllBytes(nextFileName);
-                    bw.Write(buffer);
-                }
-                counter++;
-            } 
-            bw.Close();
-            MessageBox.Show("File assebled successfully");
-        }
-       
-    }    
+    }  
 }
