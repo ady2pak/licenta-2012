@@ -12,7 +12,7 @@ namespace xoxoChat
             InitializeComponent();
             
             new NetworkServices(this);
-            new fileTransferProtocol();
+            new fileTransferProtocol(this);
             
             debugOutput.AppendText("Server Started.");
         }
@@ -27,6 +27,11 @@ namespace xoxoChat
             {
                 this.debugOutput.AppendText(Environment.NewLine + text);
             }
+        }
+
+        private void ServerMW_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            Environment.Exit(0);
         }               
     }
 }

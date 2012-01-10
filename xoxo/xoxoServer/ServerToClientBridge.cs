@@ -9,8 +9,7 @@ namespace xoxoChat
 {
     class ServerToClientBridge
     {
-        NetworkServices netServ;
-        Socket socket;
+        NetworkServices netServ;        
         Encoding encoding = Encoding.UTF8; 
 
         public ServerToClientBridge(NetworkServices netServ)
