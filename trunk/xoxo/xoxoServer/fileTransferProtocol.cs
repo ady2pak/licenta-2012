@@ -18,9 +18,11 @@ namespace xoxoChat
         int flag = 0;
         string receivedPath = "yok";
         public delegate void MyDelegate();
+        ServerMW serverMW;
 
-        public fileTransferProtocol()
+        public fileTransferProtocol(ServerMW serverMW)
         {
+            this.serverMW = serverMW;
             t1 = new Thread(new ThreadStart(StartListening));
             t1.Start();
         }
@@ -56,7 +58,7 @@ namespace xoxoChat
             }
             catch (Exception ex)
             {
-
+                serverMW.appendDebugOutput(ex.Message);
             }
 
         }
@@ -113,7 +115,8 @@ namespace xoxoChat
             }
             else
             {
-                
+                serverMW.appendDebugOutput("File received.");
+
             }
 
         }

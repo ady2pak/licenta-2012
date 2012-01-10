@@ -48,6 +48,7 @@
             this.Controls.Add(this.debugOutput);
             this.Name = "ServerMW";
             this.Text = "xoxoServer";
+            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.ServerMW_FormClosed);
             this.ResumeLayout(false);
             this.PerformLayout();
 
