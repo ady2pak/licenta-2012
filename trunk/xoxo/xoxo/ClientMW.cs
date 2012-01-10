@@ -24,7 +24,7 @@ namespace xoxoChat
         public ClientMW()
         {
             netServ = new NetworkServices(this);
-            fTP = new fileTransferProtocol(netServ);
+            fTP = new fileTransferProtocol(this);
             InitializeComponent();
         }
        
@@ -148,13 +148,7 @@ namespace xoxoChat
             }
             //else tellServerToRemoveMe();
         }
-
-        private void uploadFileBTN_Click(object sender, EventArgs e)
-        {
-            fTP.SplitUp(SelectFile());
-            //fTP.RebuildFile(SelectFile());
-        }
-
+       
         private string SelectFile()
         {
             OpenFileDialog fbd = new OpenFileDialog();
@@ -188,11 +182,16 @@ namespace xoxoChat
             netServ.m_clientSocket.Send(buffer, buffer.Length, 0);
 
             stream.Close();
-        }*/
+        }*/        
 
-        internal void sendNextPart(string filename, int partNo)
+        private void selectBTN_Click(object sender, EventArgs e)
         {
-            fTP.sendNextPart(filename, partNo);
+            fTP.OpenFile();
+        }
+
+        private void uploadFileBTN_Click(object sender, EventArgs e)
+        {
+            fTP.SendFile();
         }
     }
 }

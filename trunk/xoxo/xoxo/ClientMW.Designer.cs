@@ -39,6 +39,8 @@
             this.usernameTB = new System.Windows.Forms.TextBox();
             this.userlist = new System.Windows.Forms.ListBox();
             this.uploadFileBTN = new System.Windows.Forms.Button();
+            this.selectBTN = new System.Windows.Forms.Button();
+            this.fileTB = new System.Windows.Forms.TextBox();
             this.SuspendLayout();
             // 
             // msgHst
@@ -134,7 +136,7 @@
             // 
             // uploadFileBTN
             // 
-            this.uploadFileBTN.Location = new System.Drawing.Point(33, 434);
+            this.uploadFileBTN.Location = new System.Drawing.Point(119, 435);
             this.uploadFileBTN.Name = "uploadFileBTN";
             this.uploadFileBTN.Size = new System.Drawing.Size(75, 23);
             this.uploadFileBTN.TabIndex = 19;
@@ -143,11 +145,30 @@
             this.uploadFileBTN.Visible = false;
             this.uploadFileBTN.Click += new System.EventHandler(this.uploadFileBTN_Click);
             // 
+            // selectBTN
+            // 
+            this.selectBTN.Location = new System.Drawing.Point(34, 435);
+            this.selectBTN.Name = "selectBTN";
+            this.selectBTN.Size = new System.Drawing.Size(75, 23);
+            this.selectBTN.TabIndex = 20;
+            this.selectBTN.Text = "button1";
+            this.selectBTN.UseVisualStyleBackColor = true;
+            this.selectBTN.Click += new System.EventHandler(this.selectBTN_Click);
+            // 
+            // fileTB
+            // 
+            this.fileTB.Location = new System.Drawing.Point(201, 437);
+            this.fileTB.Name = "fileTB";
+            this.fileTB.Size = new System.Drawing.Size(166, 20);
+            this.fileTB.TabIndex = 21;
+            // 
             // ClientMW
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(512, 477);
+            this.Controls.Add(this.fileTB);
+            this.Controls.Add(this.selectBTN);
             this.Controls.Add(this.uploadFileBTN);
             this.Controls.Add(this.userlist);
             this.Controls.Add(this.loginBTN);
@@ -181,6 +202,8 @@
         private System.Windows.Forms.TextBox usernameTB;
         private System.Windows.Forms.ListBox userlist;
         private System.Windows.Forms.Button uploadFileBTN;
+        private System.Windows.Forms.Button selectBTN;
+        private System.Windows.Forms.TextBox fileTB;
 
     }
 }
