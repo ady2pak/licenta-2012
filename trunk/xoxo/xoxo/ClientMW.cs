@@ -13,6 +13,7 @@ namespace xoxoChat
         Encoding encoding = Encoding.UTF8;
         NetworkServices netServ;
         fileTransferProtocol fTP;
+        List<privateConversation> prvConversations;
 
         string username;
 
@@ -25,6 +26,7 @@ namespace xoxoChat
         {
             netServ = new NetworkServices(this);
             fTP = new fileTransferProtocol(this);
+            prvConversations = new List<privateConversation>();
             InitializeComponent();
         }
        
@@ -193,5 +195,83 @@ namespace xoxoChat
         {
             fTP.SendFile();
         }
+
+        private void userlist_MouseDown(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Right)
+            {
+                appendText("Mouse Click" + e.X + "." + e.Y);
+                //select the item under the mouse pointer
+                userlist.SelectedIndex = userlist.IndexFromPoint(e.Location);
+                if (userlist.SelectedIndex != -1)
+                {
+                    userlistContMenu.Show();
+                }
+            }
+        }
+
+        private void userlistContMenu_Opening(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            if (userlist.SelectedItem != null)
+            {
+                userlistContMenu.Items[0].Text = userlist.SelectedItem.ToString();
+            }
+            else e.Cancel = true;
+        }
+
+        private void prvConv_Click(object sender, EventArgs e)
+        {
+            startPrivateConversation(userlistContMenu.Items[0].Text);
+        }
+
+        public void startPrivateConversation(string withWho)
+        {
+            appendText(withWho);
+            prvConversations.Add(new privateConversation(withWho, netServ));
+
+            dataTypes objToSend = new dataTypes();
+            objToSend.setType(typeof(startPrivate).ToString());
+
+            startPrivate startPrv = new startPrivate();
+            startPrv.setWhoStarts(username);
+            startPrv.setWithWho(withWho);
+
+            objToSend.setObject(startPrv);
+
+            netServ.sendObjectToServer(objToSend);
+
+            getWindowByUser(withWho).FormClosed += new FormClosedEventHandler(prvConvWindow_FormClosed);
+            getWindowByUser(withWho).Text = "PRV: " + withWho;
+            getWindowByUser(withWho).ShowDialog();
+
+        }
+
+        public void startPrivateConversationByServer(string withWho)
+        {
+            appendText(withWho);
+            prvConversations.Add(new privateConversation(withWho, netServ));
+
+            getWindowByUser(withWho).FormClosed += new FormClosedEventHandler(prvConvWindow_FormClosed);
+            getWindowByUser(withWho).Text = "PRV: " + withWho;
+            getWindowByUser(withWho).Show();
+        }
+
+        privateConversation getWindowByUser(string withWho)
+        {
+            for (int index = 0; index < prvConversations.Count; index++ )
+            {
+                if (prvConversations[index].withWho == withWho)
+                    return prvConversations[index];
+            }
+            return null;
+        }
+
+        private void prvConvWindow_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            privateConversation _temp = (privateConversation)sender;
+            _temp.Dispose();
+            prvConversations.Remove(_temp);
+        }
+
     }
 }

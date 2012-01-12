@@ -51,15 +51,15 @@ namespace xoxoChat
 
         internal void sendMsgToClient(string toWho, Object objectToSend)
         {
-             dataTypes objToSend = new dataTypes();
+             //dataTypes objToSend = new dataTypes();
 
-             objToSend.setType(typeof(userList).ToString());
-             objToSend.setObject(objectToSend);
+             //objToSend.setType(typeof(userList).ToString());
+             //objToSend.setObject(objectToSend);
 
              IFormatter formatter = new BinaryFormatter();
              Stream stream = new MemoryStream();
 
-             formatter.Serialize(stream, objToSend);
+             formatter.Serialize(stream, objectToSend);
       
              byte[] buffer = ((MemoryStream)stream).ToArray();
              netServ.getUserSocketByName(toWho).Send(buffer, buffer.Length, 0);

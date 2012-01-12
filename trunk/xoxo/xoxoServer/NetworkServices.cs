@@ -224,7 +224,9 @@ namespace xoxoChat
             }
             if (objReceived.objectType.Equals(typeof(dataFile).ToString()))
             {
-                string receivedPath = "C:/";
+                #region old filetransfer
+
+                /*string receivedPath = "C:/";
                 dataFile fileReceived = (dataFile)objReceived.myObject;
                 int fileNameLen = BitConverter.ToInt32(fileReceived.buffer, 0);
                 string fileName = Encoding.ASCII.GetString(fileReceived.buffer, 4, fileNameLen);
@@ -253,11 +255,17 @@ namespace xoxoChat
                 formatter.Serialize(stream, wasReceived);
 
                 byte[] buffer = ((MemoryStream)stream).ToArray();
-                m_socWorker.Send(buffer, buffer.Length, 0);
+                m_socWorker.Send(buffer, buffer.Length, 0);*/
+                #endregion
+            }
+            if (objReceived.objectType.Equals(typeof(startPrivate).ToString()))
+            {
+                startPrivate startPRV = (startPrivate)objReceived.myObject;
+                STCB.sendMsgToClient(startPRV.withWho, objReceived);
             }
                 
         }
-
+        
         public Socket getUserSocketByName(string username)
         {
             for (int index = 0 ; index < clients.Count ; index++)

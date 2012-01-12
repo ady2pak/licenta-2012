@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.msgHst = new System.Windows.Forms.TextBox();
             this.msgBox = new System.Windows.Forms.TextBox();
             this.sendBTN = new System.Windows.Forms.Button();
@@ -38,9 +39,14 @@
             this.passwordTB = new System.Windows.Forms.TextBox();
             this.usernameTB = new System.Windows.Forms.TextBox();
             this.userlist = new System.Windows.Forms.ListBox();
+            this.userlistContMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.usernameSelected = new System.Windows.Forms.ToolStripTextBox();
+            this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
+            this.prvConv = new System.Windows.Forms.ToolStripMenuItem();
             this.uploadFileBTN = new System.Windows.Forms.Button();
             this.selectBTN = new System.Windows.Forms.Button();
             this.fileTB = new System.Windows.Forms.TextBox();
+            this.userlistContMenu.SuspendLayout();
             this.SuspendLayout();
             // 
             // msgHst
@@ -127,12 +133,44 @@
             // 
             // userlist
             // 
+            this.userlist.ContextMenuStrip = this.userlistContMenu;
             this.userlist.FormattingEnabled = true;
             this.userlist.Location = new System.Drawing.Point(332, 23);
             this.userlist.Name = "userlist";
             this.userlist.Size = new System.Drawing.Size(146, 381);
             this.userlist.TabIndex = 18;
             this.userlist.Visible = false;
+            this.userlist.MouseDown += new System.Windows.Forms.MouseEventHandler(this.userlist_MouseDown);
+            // 
+            // userlistContMenu
+            // 
+            this.userlistContMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.usernameSelected,
+            this.toolStripSeparator1,
+            this.prvConv});
+            this.userlistContMenu.Name = "userlistContMenu";
+            this.userlistContMenu.Size = new System.Drawing.Size(218, 72);
+            this.userlistContMenu.Opening += new System.ComponentModel.CancelEventHandler(this.userlistContMenu_Opening);
+            // 
+            // usernameSelected
+            // 
+            this.usernameSelected.BackColor = System.Drawing.SystemColors.ControlLightLight;
+            this.usernameSelected.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.usernameSelected.Enabled = false;
+            this.usernameSelected.Name = "usernameSelected";
+            this.usernameSelected.Size = new System.Drawing.Size(100, 16);
+            // 
+            // toolStripSeparator1
+            // 
+            this.toolStripSeparator1.Name = "toolStripSeparator1";
+            this.toolStripSeparator1.Size = new System.Drawing.Size(214, 6);
+            // 
+            // prvConv
+            // 
+            this.prvConv.Name = "prvConv";
+            this.prvConv.Size = new System.Drawing.Size(217, 22);
+            this.prvConv.Text = "Start a private conversation";
+            this.prvConv.Click += new System.EventHandler(this.prvConv_Click);
             // 
             // uploadFileBTN
             // 
@@ -184,6 +222,8 @@
             this.Text = "xoxo";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.ClientMW_FormClosing);
             this.Load += new System.EventHandler(this.ClientMW_Load);
+            this.userlistContMenu.ResumeLayout(false);
+            this.userlistContMenu.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -204,6 +244,10 @@
         private System.Windows.Forms.Button uploadFileBTN;
         private System.Windows.Forms.Button selectBTN;
         private System.Windows.Forms.TextBox fileTB;
+        private System.Windows.Forms.ContextMenuStrip userlistContMenu;
+        private System.Windows.Forms.ToolStripMenuItem prvConv;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
+        private System.Windows.Forms.ToolStripTextBox usernameSelected;
 
     }
 }

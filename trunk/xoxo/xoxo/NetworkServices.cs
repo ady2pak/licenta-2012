@@ -110,7 +110,26 @@ namespace xoxoChat
                 //clientMW.sendNextPart(dfR.filename, dfR.partNo + 1);
                 
             }
+            else if (objReceived.objectType.Equals(typeof(startPrivate).ToString()))
+            {
+                startPrivate startPRV = (startPrivate)objReceived.myObject;
+                clientMW.startPrivateConversationByServer(startPRV.whoStarts);
+            }
             else throw new Exception("Unsupported object type");
         }
+
+        public void sendObjectToServer(dataTypes objToSend)
+        {
+            IFormatter formatter = new BinaryFormatter();
+            Stream stream = new MemoryStream();
+
+            formatter.Serialize(stream, objToSend);
+
+            byte[] buffer = ((MemoryStream)stream).ToArray();
+            
+            m_clientSocket.Send(buffer, buffer.Length, 0);
+
+            stream.Close();
+        }        
     }
 }
