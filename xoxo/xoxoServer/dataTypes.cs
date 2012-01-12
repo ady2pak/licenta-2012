@@ -102,6 +102,16 @@ namespace xoxoChat
     }
 
     [Serializable()]
+    class startPrivate
+    {
+        public string whoStarts;
+        public string withWho;
+
+        public void setWhoStarts(string whoStarts) { this.whoStarts = whoStarts; }
+        public void setWithWho(string withWho) { this.withWho = withWho; }
+    }
+
+    [Serializable()]
     class iQuit
     {
         public string username;
