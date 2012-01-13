@@ -54,7 +54,6 @@ namespace xoxoChat
             }
         }
 
-
         public void OnClientConnect(IAsyncResult asyn)
         {
             string userName = "placeholder"; // to be edited
@@ -213,66 +212,27 @@ namespace xoxoChat
 
                 STCB.sendUserlistToClients(connectedUsers);
             }
-            if (objReceived.objectType.Equals(typeof(messageToEveryone).ToString()))
+            else if (objReceived.objectType.Equals(typeof(messageToEveryone).ToString()))
             {
                 messageToEveryone msg = (messageToEveryone)objReceived.myObject;
                 STCB.sendMsgToAllClients(msg);
-            }
-            if (objReceived.objectType.Equals(typeof(iQuit).ToString()))
-            {
-
-            }
-            if (objReceived.objectType.Equals(typeof(dataFile).ToString()))
-            {
-                #region old filetransfer
-
-                /*string receivedPath = "C:/";
-                dataFile fileReceived = (dataFile)objReceived.myObject;
-                int fileNameLen = BitConverter.ToInt32(fileReceived.buffer, 0);
-                string fileName = Encoding.ASCII.GetString(fileReceived.buffer, 4, fileNameLen);
-                fileName = fileName.Substring(fileName.LastIndexOf(@"\") + 1);
-
-                
-                BinaryWriter bWrite = new BinaryWriter(File.Open(receivedPath + fileName, FileMode.Append));                
-                bWrite.Write(fileReceived.buffer, 4 + fileNameLen, fileReceived.buffer.Length - 4 - fileNameLen);
-
-                bWrite.Close();
-
-                serverMW.appendDebugOutput(receivedPath + fileName);
-
-                datafileReceived dfR = new datafileReceived();
-                dfR.setFilename(Encoding.ASCII.GetString(fileReceived.buffer, 4, fileNameLen));
-                dfR.setPartNo(Int32.Parse(fileName.Substring(fileName.LastIndexOf(".") + 1)));
-                dfR.setTotalPartNo(100);
-                
-                dataTypes wasReceived = new dataTypes();
-                wasReceived.setType(typeof(datafileReceived).ToString());
-                wasReceived.setObject(dfR);
-
-                IFormatter formatter = new BinaryFormatter();
-                Stream stream = new MemoryStream();
-
-                formatter.Serialize(stream, wasReceived);
-
-                byte[] buffer = ((MemoryStream)stream).ToArray();
-                m_socWorker.Send(buffer, buffer.Length, 0);*/
-                #endregion
-            }
-            if (objReceived.objectType.Equals(typeof(startPrivate).ToString()))
+            } 
+            else if (objReceived.objectType.Equals(typeof(startPrivate).ToString()))
             {
                 startPrivate startPRV = (startPrivate)objReceived.myObject;
                 STCB.sendMsgToClient(startPRV.withWho, objReceived);
             }
-            if (objReceived.objectType.Equals(typeof(privateMessage).ToString()))
+            else if (objReceived.objectType.Equals(typeof(privateMessage).ToString()))
             {
                 privateMessage prvMsg = (privateMessage)objReceived.myObject;
                 STCB.sendMsgToClient(prvMsg.toWho, objReceived);
             }
-            if (objReceived.objectType.Equals(typeof(closePrivate).ToString()))
+            else if (objReceived.objectType.Equals(typeof(closePrivate).ToString()))
             {
                 closePrivate closePrv = (closePrivate)objReceived.myObject;
                 STCB.sendMsgToClient(closePrv.toWho, objReceived);
             }
+            else throw new Exception("Unsupported object type");
                 
         }
         
@@ -288,6 +248,4 @@ namespace xoxoChat
             return null;
         }
     }
-
-
 }

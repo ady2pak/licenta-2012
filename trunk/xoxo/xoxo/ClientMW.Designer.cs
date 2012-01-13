@@ -57,8 +57,7 @@
             this.msgHst.Name = "msgHst";
             this.msgHst.Size = new System.Drawing.Size(291, 380);
             this.msgHst.TabIndex = 9;
-            this.msgHst.Visible = false;
-            this.msgHst.TextChanged += new System.EventHandler(this.msgHst_TextChanged);
+            this.msgHst.Visible = false;            
             // 
             // msgBox
             // 
@@ -189,16 +188,19 @@
             this.selectBTN.Name = "selectBTN";
             this.selectBTN.Size = new System.Drawing.Size(75, 23);
             this.selectBTN.TabIndex = 20;
-            this.selectBTN.Text = "button1";
+            this.selectBTN.Text = "Select File";
             this.selectBTN.UseVisualStyleBackColor = true;
+            this.selectBTN.Visible = false;
             this.selectBTN.Click += new System.EventHandler(this.selectBTN_Click);
             // 
             // fileTB
             // 
+            this.fileTB.Enabled = false;
             this.fileTB.Location = new System.Drawing.Point(201, 437);
             this.fileTB.Name = "fileTB";
             this.fileTB.Size = new System.Drawing.Size(166, 20);
             this.fileTB.TabIndex = 21;
+            this.fileTB.Visible = false;
             // 
             // ClientMW
             // 
@@ -220,8 +222,7 @@
             this.Controls.Add(this.msgHst);
             this.Name = "ClientMW";
             this.Text = "xoxo";
-            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.ClientMW_FormClosing);
-            this.Load += new System.EventHandler(this.ClientMW_Load);
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.ClientMW_FormClosing);            
             this.userlistContMenu.ResumeLayout(false);
             this.userlistContMenu.PerformLayout();
             this.ResumeLayout(false);

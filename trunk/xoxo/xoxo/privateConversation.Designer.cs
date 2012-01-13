@@ -35,6 +35,7 @@
             // 
             // msgHst
             // 
+            this.msgHst.Enabled = false;
             this.msgHst.Location = new System.Drawing.Point(13, 11);
             this.msgHst.Multiline = true;
             this.msgHst.Name = "msgHst";

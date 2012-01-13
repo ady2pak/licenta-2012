@@ -54,8 +54,6 @@ namespace xoxoChat
             }
         }
 
-        
-
         private void OnDataReceived(IAsyncResult asyn)
         {
             try
@@ -103,12 +101,6 @@ namespace xoxoChat
             {
                 userList onlineClients = (userList)objReceived.myObject;
                 clientMW.appendUsers(onlineClients.users);
-            }
-            else if (objReceived.objectType.Equals(typeof(datafileReceived).ToString()))
-            {
-                datafileReceived dfR = (datafileReceived)objReceived.myObject;
-                //clientMW.sendNextPart(dfR.filename, dfR.partNo + 1);
-                
             }
             else if (objReceived.objectType.Equals(typeof(startPrivate).ToString()))
             {
