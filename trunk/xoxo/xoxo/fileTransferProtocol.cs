@@ -56,7 +56,7 @@ namespace xoxoChat
             fileData.CopyTo(clientData, 4 + fileName.Length);
 
 
-            clientSock.Connect("localhost", 9050); //target machine's ip address and the port number
+            clientSock.Connect("127.0.0.1", 9050); //target machine's ip address and the port number
             clientSock.Send(clientData);
             clientSock.Close();
         }

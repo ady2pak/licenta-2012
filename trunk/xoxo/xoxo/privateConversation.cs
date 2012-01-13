@@ -15,10 +15,12 @@ namespace xoxoChat
 
         public string withWho;
         NetworkServices netServ;
+        ClientMW clientMW;
 
-        public privateConversation(string withWho, NetworkServices netServ)
+        public privateConversation(string withWho, ClientMW clientMW, NetworkServices netServ)
         {
             this.withWho = withWho;
+            this.clientMW = clientMW;
             this.netServ = netServ;
             InitializeComponent();
             appendText("Private conversation with " + withWho + ".");
@@ -35,6 +37,31 @@ namespace xoxoChat
             {
                 this.msgHst.AppendText(Environment.NewLine + msg);
             }
-        }      
+        }
+
+        private void sendBTN_Click(object sender, EventArgs e)
+        {
+            privateMessage prvMsg = new privateMessage();
+            prvMsg.setWhoSent(clientMW.username);
+            prvMsg.setToWho(withWho);
+            prvMsg.setMessage(msgToSend.Text.Trim());
+
+            appendText("[" + clientMW.username + "] " + prvMsg.message);
+
+            msgToSend.Clear();
+
+            dataTypes objToSend = new dataTypes();
+            objToSend.setType(typeof(privateMessage).ToString());
+            objToSend.setObject(prvMsg);
+
+            netServ.sendObjectToServer(objToSend);
+        }
+
+        internal void disableControls()
+        {
+            appendText("Windows was closed by the other user");
+            this.sendBTN.Visible = false;
+            this.msgToSend.Visible = false;
+        }
     }
 }

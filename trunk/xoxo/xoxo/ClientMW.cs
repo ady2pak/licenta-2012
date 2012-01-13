@@ -5,6 +5,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Windows.Forms;
 using System.Collections.Generic;
+using System.Threading;
 
 namespace xoxoChat
 {
@@ -15,7 +16,7 @@ namespace xoxoChat
         fileTransferProtocol fTP;
         List<privateConversation> prvConversations;
 
-        string username;
+        public string username;
 
         public bool _connected = false;
 
@@ -227,33 +228,57 @@ namespace xoxoChat
         public void startPrivateConversation(string withWho)
         {
             appendText(withWho);
-            prvConversations.Add(new privateConversation(withWho, netServ));
 
-            dataTypes objToSend = new dataTypes();
-            objToSend.setType(typeof(startPrivate).ToString());
+            if (notAlreadyOpen(withWho))
+            {
+                dataTypes objToSend = new dataTypes();
+                objToSend.setType(typeof(startPrivate).ToString());
 
-            startPrivate startPrv = new startPrivate();
-            startPrv.setWhoStarts(username);
-            startPrv.setWithWho(withWho);
+                startPrivate startPrv = new startPrivate();
+                startPrv.setWhoStarts(username);
+                startPrv.setWithWho(withWho);
 
-            objToSend.setObject(startPrv);
+                objToSend.setObject(startPrv);
 
-            netServ.sendObjectToServer(objToSend);
+                netServ.sendObjectToServer(objToSend);
 
-            getWindowByUser(withWho).FormClosed += new FormClosedEventHandler(prvConvWindow_FormClosed);
-            getWindowByUser(withWho).Text = "PRV: " + withWho;
-            getWindowByUser(withWho).ShowDialog();
+                try
+                {
+                    Thread sf = new Thread(showForm);
+                    sf.Start(withWho);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message);
+                }
+            }
+            else MessageBox.Show("Already in a private conversation with " + withWho + ".");
 
+        }
+
+        private bool notAlreadyOpen(string withWho)
+        {
+           for (int index = 0 ; index < prvConversations.Count ; index++)
+               if (prvConversations[index].withWho.Equals(withWho))
+                   return false;
+           return true;
         }
 
         public void startPrivateConversationByServer(string withWho)
         {
-            appendText(withWho);
-            prvConversations.Add(new privateConversation(withWho, netServ));
+            appendText(withWho);            
+            Thread sf= new Thread(showForm);
+            sf.Start(withWho);
+        }
 
-            getWindowByUser(withWho).FormClosed += new FormClosedEventHandler(prvConvWindow_FormClosed);
-            getWindowByUser(withWho).Text = "PRV: " + withWho;
-            getWindowByUser(withWho).Show();
+        private void showForm(object data)
+        {
+            privateConversation thisConversation = new privateConversation((string)data, this, netServ);
+            prvConversations.Add(thisConversation);
+
+            thisConversation.FormClosed += new FormClosedEventHandler(prvConvWindow_FormClosed);
+            thisConversation.Text = "PRV: " + (string)data;
+            thisConversation.ShowDialog();
         }
 
         privateConversation getWindowByUser(string withWho)
@@ -268,10 +293,36 @@ namespace xoxoChat
 
         private void prvConvWindow_FormClosed(object sender, FormClosedEventArgs e)
         {
+
+            //TODO : filter send to server by ifremoved from list<>
             privateConversation _temp = (privateConversation)sender;
             _temp.Dispose();
             prvConversations.Remove(_temp);
+
+            closePrivate closePrv = new closePrivate();
+            closePrv.setWhoSent(username);
+            closePrv.setToWho(_temp.withWho);
+
+            dataTypes objectToSend = new dataTypes();
+            objectToSend.setType(typeof(closePrivate).ToString());
+            objectToSend.setObject(closePrv);
+
+            netServ.sendObjectToServer(objectToSend);
         }
 
+        internal void pushPrivateToWindow(privateMessage prvMsg)
+        {
+            privateConversation thisConv = getWindowByUser(prvMsg.whoSent);
+
+            thisConv.appendText("[" + prvMsg.whoSent + "] " + prvMsg.message);
+        }
+
+        internal void closePrivate(closePrivate closePrv)
+        {
+            privateConversation thisConversation = getWindowByUser(closePrv.whoSent);
+            thisConversation.disableControls();
+            prvConversations.Remove(thisConversation);
+
+        }
     }
 }

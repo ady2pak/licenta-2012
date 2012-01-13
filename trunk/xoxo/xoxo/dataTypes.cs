@@ -112,6 +112,46 @@ namespace xoxoChat
     }
 
     [Serializable()]
+    class privateMessage
+    {
+        public string toWho;
+        public string whoSent;
+        public string message;
+
+        public void setToWho(string toWho)
+        {
+            this.toWho = toWho;
+        }
+
+        public void setWhoSent(string whoSent)
+        {
+            this.whoSent = whoSent;
+        }
+
+        public void setMessage(string message)
+        {
+            this.message = message;
+        }
+    }
+
+    [Serializable()]
+    class closePrivate
+    {
+        public string toWho;
+        public string whoSent;        
+
+        public void setToWho(string toWho)
+        {
+            this.toWho = toWho;
+        }
+
+        public void setWhoSent(string whoSent)
+        {
+            this.whoSent = whoSent;
+        }
+    }
+
+    [Serializable()]
     class iQuit
     {
         public string username;

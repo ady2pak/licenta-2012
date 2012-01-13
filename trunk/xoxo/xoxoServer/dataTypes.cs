@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace xoxoChat
 {
     [Serializable()]
-    class dataTypes
+    public class dataTypes
     {
         public String objectType;
         public object myObject;
@@ -109,6 +109,46 @@ namespace xoxoChat
 
         public void setWhoStarts(string whoStarts) { this.whoStarts = whoStarts; }
         public void setWithWho(string withWho) { this.withWho = withWho; }
+    }
+
+    [Serializable()]
+    class privateMessage
+    {
+        public string toWho;
+        public string whoSent;
+        public string message;
+
+        public void setToWho(string toWho)
+        {
+            this.toWho = toWho;
+        }
+
+        public void setWhoSent(string whoSent)
+        {
+            this.whoSent = whoSent;
+        }
+
+        public void setMessage(string message)
+        {
+            this.message = message;
+        }
+    }
+
+    [Serializable()]
+    class closePrivate
+    {
+        public string toWho;
+        public string whoSent;
+
+        public void setToWho(string toWho)
+        {
+            this.toWho = toWho;
+        }
+
+        public void setWhoSent(string whoSent)
+        {
+            this.whoSent = whoSent;
+        }
     }
 
     [Serializable()]

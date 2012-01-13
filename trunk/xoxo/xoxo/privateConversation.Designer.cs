@@ -56,6 +56,7 @@
             this.sendBTN.TabIndex = 2;
             this.sendBTN.Text = "Send";
             this.sendBTN.UseVisualStyleBackColor = true;
+            this.sendBTN.Click += new System.EventHandler(this.sendBTN_Click);
             // 
             // privateConversation
             // 
