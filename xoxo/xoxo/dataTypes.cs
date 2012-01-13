@@ -63,45 +63,6 @@ namespace xoxoChat
     }
 
     [Serializable()]
-    class dataFile
-    {
-        public string filename;
-        public byte[] buffer;
-
-        public void setFilename(string filename)
-        {
-            this.filename = filename;
-        }
-
-        public void setData(byte[] buffer)
-        {
-            this.buffer = buffer;
-        }
-    }
-
-    [Serializable()]
-    class datafileReceived
-    {
-        public string filename;
-        public int partNo;
-        public int totalPartNo;
-
-        public void setFilename(string filename)
-        {
-            this.filename = filename;
-        }
-
-        public void setPartNo(int partNo)
-        {
-            this.partNo = partNo;
-        }
-        public void setTotalPartNo(int totalPartNo)
-        {
-            this.totalPartNo = totalPartNo;
-        }
-    }
-
-    [Serializable()]
     class startPrivate
     {
         public string whoStarts;
@@ -151,7 +112,7 @@ namespace xoxoChat
         }
     }
 
-    [Serializable()]
+    /*[Serializable()]
     class iQuit
     {
         public string username;
@@ -161,4 +122,5 @@ namespace xoxoChat
             this.username = username;
         }
     }
+    */
 }

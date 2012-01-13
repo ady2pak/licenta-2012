@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Net.Sockets;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
@@ -51,11 +50,6 @@ namespace xoxoChat
 
         internal void sendMsgToClient(string toWho, Object objectToSend)
         {
-             //dataTypes objToSend = new dataTypes();
-
-             //objToSend.setType(typeof(userList).ToString());
-             //objToSend.setObject(objectToSend);
-
              IFormatter formatter = new BinaryFormatter();
              Stream stream = new MemoryStream();
 

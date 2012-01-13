@@ -1,10 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 
 namespace xoxoChat
@@ -26,6 +20,7 @@ namespace xoxoChat
             appendText("Private conversation with " + withWho + ".");
             
         }
+
         public void appendText(string msg)
         {
             if (this.msgHst.InvokeRequired)
@@ -59,9 +54,11 @@ namespace xoxoChat
 
         internal void disableControls()
         {
-            appendText("Windows was closed by the other user");
-            this.sendBTN.Visible = false;
-            this.msgToSend.Visible = false;
+            appendText("This private conversation was closed by the other user. Please begin a new conversation if needed.");            
+
+            sendBTN.BeginInvoke(new MethodInvoker(sendBTN.Hide));
+            msgToSend.BeginInvoke(new MethodInvoker(msgToSend.Hide));
+
         }
     }
 }

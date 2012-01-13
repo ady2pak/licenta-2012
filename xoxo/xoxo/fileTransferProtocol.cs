@@ -1,14 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.IO;
+using System.Net.Sockets;
 using System.Text;
 using System.Windows.Forms;
-using System.IO;
-using System.Runtime.Serialization;
-using System.Runtime.Serialization.Formatters.Binary;
-using System.Threading;
-using System.Net.Sockets;
-using System.Net;
 
 namespace xoxoChat
 {
@@ -31,13 +25,11 @@ namespace xoxoChat
             OpenFileDialog openFileDialog1 = new OpenFileDialog();
             char[] delimiter = splitter.ToCharArray();
             openFileDialog1.ShowDialog();
-            filename = openFileDialog1.FileName;
-            //clientMW.file.Text = openFileDialog1.FileName;
+            filename = openFileDialog1.FileName;            
             split = filename.Split(delimiter);
             int limit = split.Length;
             fName = split[limit - 1].ToString();
-            //if (textBox1.Text != null)
-                //button1.Enabled = true;
+            clientMW.setFileName(fName);
 
         }
 

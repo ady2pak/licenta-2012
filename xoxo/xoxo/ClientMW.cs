@@ -1,16 +1,17 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
-using System.Windows.Forms;
-using System.Collections.Generic;
 using System.Threading;
+using System.Windows.Forms;
 
 namespace xoxoChat
 {
     public partial class ClientMW : Form
     {
+        #region DECLARATIONS & CONSTRUCTOR
         Encoding encoding = Encoding.UTF8;
         NetworkServices netServ;
         fileTransferProtocol fTP;
@@ -30,7 +31,155 @@ namespace xoxoChat
             prvConversations = new List<privateConversation>();
             InitializeComponent();
         }
-       
+
+        #endregion
+
+        #region MAIN WINDOW
+
+        public void showChat()
+        {
+            this.loginLBL.Visible = false;
+            this.usernameLBL.Visible = false;
+            this.usernameTB.Visible = false;
+            this.passwordLBL.Visible = false;
+            this.passwordTB.Visible = false;
+            this.loginBTN.Visible = false;
+            this.msgHst.Visible = true;
+            this.msgBox.Visible = true;
+            this.sendBTN.Visible = true;
+            this.userlist.Visible = true;
+            this.uploadFileBTN.Visible = true;
+            this.fileTB.Visible = true;
+            this.selectBTN.Visible = true;
+        }
+
+        public void appendText(string msg)
+        {
+            if (this.msgHst.InvokeRequired)
+            {
+                appendTextCallback d = new appendTextCallback(appendText);
+                this.Invoke(d, new object[] { msg });
+            }
+            else
+            {
+                this.msgHst.AppendText(Environment.NewLine + msg);
+            }
+        }
+
+        public void appendUsers(System.Collections.Generic.List<string> list)
+        {
+
+            if (this.userlist.InvokeRequired)
+            {
+                appendUsersCallback d = new appendUsersCallback(appendUsers);
+                this.Invoke(d, new object[] { null });
+                this.Invoke(d, new object[] { list });
+            }
+            else
+            {
+                this.userlist.DataSource = null;
+                this.userlist.DataSource = list;
+            }
+        }
+
+        #endregion
+
+        #region PRIVATE CONVERSATIONS
+
+        public void startPrivateConversation(string withWho)
+        {
+            appendText(withWho);
+
+            if (notAlreadyOpen(withWho))
+            {
+                dataTypes objToSend = new dataTypes();
+                objToSend.setType(typeof(startPrivate).ToString());
+
+                startPrivate startPrv = new startPrivate();
+                startPrv.setWhoStarts(username);
+                startPrv.setWithWho(withWho);
+
+                objToSend.setObject(startPrv);
+
+                netServ.sendObjectToServer(objToSend);
+
+                try
+                {
+                    Thread sf = new Thread(showPrivateWindow);
+                    sf.Start(withWho);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message);
+                }
+            }
+            else MessageBox.Show("Already in a private conversation with " + withWho + ".");
+
+        }
+
+        public void startPrivateConversationByServer(string withWho)
+        {
+            appendText(withWho);
+            Thread sf = new Thread(showPrivateWindow);
+            sf.Start(withWho);
+        }
+
+        private void showPrivateWindow(object data)
+        {
+            privateConversation thisConversation = new privateConversation((string)data, this, netServ);
+            prvConversations.Add(thisConversation);
+
+            thisConversation.FormClosed += new FormClosedEventHandler(prvConvWindow_FormClosed);
+            thisConversation.Text = "PRV: " + (string)data;
+            thisConversation.ShowDialog();
+        }
+
+        private bool notAlreadyOpen(string withWho)
+        {
+            for (int index = 0; index < prvConversations.Count; index++)
+                if (prvConversations[index].withWho.Equals(withWho))
+                    return false;
+            return true;
+        }
+
+        internal void pushPrivateToWindow(privateMessage prvMsg)
+        {
+            privateConversation thisConv = getWindowByUser(prvMsg.whoSent);
+
+            thisConv.appendText("[" + prvMsg.whoSent + "] " + prvMsg.message);
+        }
+
+        internal void closePrivate(closePrivate closePrv)
+        {
+            privateConversation thisConversation = getWindowByUser(closePrv.whoSent);
+            thisConversation.disableControls();
+            prvConversations.Remove(thisConversation);
+
+        }
+
+        privateConversation getWindowByUser(string withWho)
+        {
+            for (int index = 0; index < prvConversations.Count; index++)
+            {
+                if (prvConversations[index].withWho == withWho)
+                    return prvConversations[index];
+            }
+            return null;
+        }
+
+        #endregion
+
+        #region FILE UPLOAD
+
+        internal void setFileName(string fName)
+        {
+            this.fileTB.Text = fName;
+        }
+
+        #endregion
+
+        #region EVENT HANDLERS
+
         private void sendBTN_Click(object sender, EventArgs e)
         {
             messageToEveryone msg = new messageToEveryone();
@@ -47,7 +196,7 @@ namespace xoxoChat
             Stream stream = new MemoryStream();
 
             formatter.Serialize(stream, objToSend);
-      
+
             byte[] buffer = ((MemoryStream)stream).ToArray();
 
             netServ.m_clientSocket.Send(buffer, buffer.Length, 0);
@@ -88,105 +237,6 @@ namespace xoxoChat
 
         }
 
-        public void showChat()
-        {
-            this.loginLBL.Visible = false;
-            this.usernameLBL.Visible = false;
-            this.usernameTB.Visible = false;
-            this.passwordLBL.Visible = false;
-            this.passwordTB.Visible = false;
-            this.loginBTN.Visible = false;
-            this.msgHst.Visible = true;
-            this.msgBox.Visible = true;
-            this.sendBTN.Visible = true;
-            this.userlist.Visible = true;
-            this.uploadFileBTN.Visible = true;
-        }
-
-        public void appendText(string msg)
-        {
-            if (this.msgHst.InvokeRequired)
-            {
-                appendTextCallback d = new appendTextCallback(appendText);
-                this.Invoke(d, new object[] { msg });
-            }
-            else
-            {
-                this.msgHst.AppendText(Environment.NewLine + msg);
-            }
-        }
-
-        private void msgHst_TextChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void ClientMW_Load(object sender, EventArgs e)
-        {
-
-        }
-
-        public void appendUsers(System.Collections.Generic.List<string> list)
-        {
-
-            if (this.userlist.InvokeRequired)
-            {
-                appendUsersCallback d = new appendUsersCallback(appendUsers);
-                this.Invoke(d, new object[] { null });
-                this.Invoke(d, new object[] { list });
-            }
-            else
-            {
-                this.userlist.DataSource = null;
-                this.userlist.DataSource = list;
-            }
-        }
-
-        private void ClientMW_FormClosing(object sender, FormClosingEventArgs e)
-        {
-            if (MessageBox.Show("Are you sure you want to exit the application?", "My Application",
-                MessageBoxButtons.YesNo) == DialogResult.No)
-            {
-                e.Cancel = true;
-            }
-            //else tellServerToRemoveMe();
-        }
-       
-        private string SelectFile()
-        {
-            OpenFileDialog fbd = new OpenFileDialog();
-            if (fbd.ShowDialog() != DialogResult.OK)
-            {
-                MessageBox.Show("No file selected");
-                return "";
-            }
-            else
-                return fbd.FileName;
-        }
-
-       /* private void tellServerToRemoveMe()
-        {
-            iQuit rageQuit = new iQuit();
-
-            rageQuit.setUsername(username);
-
-            dataTypes objToSend = new dataTypes();
-
-            objToSend.setType(typeof(iQuit).ToString());
-            objToSend.setObject(rageQuit);
-
-            IFormatter formatter = new BinaryFormatter();
-            Stream stream = new MemoryStream();
-
-            formatter.Serialize(stream, objToSend);
-
-            byte[] buffer = ((MemoryStream)stream).ToArray();
-
-            netServ.m_clientSocket.Send(buffer, buffer.Length, 0);
-
-            stream.Close();
-        }*/        
-
         private void selectBTN_Click(object sender, EventArgs e)
         {
             fTP.OpenFile();
@@ -195,6 +245,11 @@ namespace xoxoChat
         private void uploadFileBTN_Click(object sender, EventArgs e)
         {
             fTP.SendFile();
+        }
+
+        private void prvConv_Click(object sender, EventArgs e)
+        {
+            startPrivateConversation(userlistContMenu.Items[0].Text);
         }
 
         private void userlist_MouseDown(object sender, MouseEventArgs e)
@@ -220,75 +275,14 @@ namespace xoxoChat
             else e.Cancel = true;
         }
 
-        private void prvConv_Click(object sender, EventArgs e)
+        private void ClientMW_FormClosing(object sender, FormClosingEventArgs e)
         {
-            startPrivateConversation(userlistContMenu.Items[0].Text);
-        }
-
-        public void startPrivateConversation(string withWho)
-        {
-            appendText(withWho);
-
-            if (notAlreadyOpen(withWho))
+            if (MessageBox.Show("Are you sure you want to exit the application?", "My Application",
+                MessageBoxButtons.YesNo) == DialogResult.No)
             {
-                dataTypes objToSend = new dataTypes();
-                objToSend.setType(typeof(startPrivate).ToString());
-
-                startPrivate startPrv = new startPrivate();
-                startPrv.setWhoStarts(username);
-                startPrv.setWithWho(withWho);
-
-                objToSend.setObject(startPrv);
-
-                netServ.sendObjectToServer(objToSend);
-
-                try
-                {
-                    Thread sf = new Thread(showForm);
-                    sf.Start(withWho);
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show(ex.Message);
-                }
+                e.Cancel = true;
             }
-            else MessageBox.Show("Already in a private conversation with " + withWho + ".");
-
-        }
-
-        private bool notAlreadyOpen(string withWho)
-        {
-           for (int index = 0 ; index < prvConversations.Count ; index++)
-               if (prvConversations[index].withWho.Equals(withWho))
-                   return false;
-           return true;
-        }
-
-        public void startPrivateConversationByServer(string withWho)
-        {
-            appendText(withWho);            
-            Thread sf= new Thread(showForm);
-            sf.Start(withWho);
-        }
-
-        private void showForm(object data)
-        {
-            privateConversation thisConversation = new privateConversation((string)data, this, netServ);
-            prvConversations.Add(thisConversation);
-
-            thisConversation.FormClosed += new FormClosedEventHandler(prvConvWindow_FormClosed);
-            thisConversation.Text = "PRV: " + (string)data;
-            thisConversation.ShowDialog();
-        }
-
-        privateConversation getWindowByUser(string withWho)
-        {
-            for (int index = 0; index < prvConversations.Count; index++ )
-            {
-                if (prvConversations[index].withWho == withWho)
-                    return prvConversations[index];
-            }
-            return null;
+            //else tellServerToRemoveMe();
         }
 
         private void prvConvWindow_FormClosed(object sender, FormClosedEventArgs e)
@@ -297,32 +291,55 @@ namespace xoxoChat
             //TODO : filter send to server by ifremoved from list<>
             privateConversation _temp = (privateConversation)sender;
             _temp.Dispose();
-            prvConversations.Remove(_temp);
 
-            closePrivate closePrv = new closePrivate();
-            closePrv.setWhoSent(username);
-            closePrv.setToWho(_temp.withWho);
+            for (int index = 0; index < prvConversations.Count; index++)
+            {
+                if (prvConversations[index] == _temp)
+                {
+                    prvConversations.Remove(_temp);
 
-            dataTypes objectToSend = new dataTypes();
-            objectToSend.setType(typeof(closePrivate).ToString());
-            objectToSend.setObject(closePrv);
+                    closePrivate closePrv = new closePrivate();
+                    closePrv.setWhoSent(username);
+                    closePrv.setToWho(_temp.withWho);
 
-            netServ.sendObjectToServer(objectToSend);
+                    dataTypes objectToSend = new dataTypes();
+                    objectToSend.setType(typeof(closePrivate).ToString());
+                    objectToSend.setObject(closePrv);
+
+                    netServ.sendObjectToServer(objectToSend);
+
+                    break;
+                }
+            }
         }
 
-        internal void pushPrivateToWindow(privateMessage prvMsg)
+        #endregion
+
+        #region GRAVEYARD - FOR REVIEW & REMOVAL
+
+        /* private void tellServerToRemoveMe()
         {
-            privateConversation thisConv = getWindowByUser(prvMsg.whoSent);
+            iQuit rageQuit = new iQuit();
 
-            thisConv.appendText("[" + prvMsg.whoSent + "] " + prvMsg.message);
-        }
+            rageQuit.setUsername(username);
 
-        internal void closePrivate(closePrivate closePrv)
-        {
-            privateConversation thisConversation = getWindowByUser(closePrv.whoSent);
-            thisConversation.disableControls();
-            prvConversations.Remove(thisConversation);
+            dataTypes objToSend = new dataTypes();
 
-        }
+            objToSend.setType(typeof(iQuit).ToString());
+            objToSend.setObject(rageQuit);
+
+            IFormatter formatter = new BinaryFormatter();
+            Stream stream = new MemoryStream();
+
+            formatter.Serialize(stream, objToSend);
+
+            byte[] buffer = ((MemoryStream)stream).ToArray();
+
+            netServ.m_clientSocket.Send(buffer, buffer.Length, 0);
+
+            stream.Close();
+        }*/
+
+        #endregion
     }
 }
