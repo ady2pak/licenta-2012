@@ -115,6 +115,16 @@ namespace xoxoChat
                 startPrivate startPRV = (startPrivate)objReceived.myObject;
                 clientMW.startPrivateConversationByServer(startPRV.whoStarts);
             }
+            else if (objReceived.objectType.Equals(typeof(privateMessage).ToString()))
+            {
+                privateMessage prvMsg = (privateMessage)objReceived.myObject;
+                clientMW.pushPrivateToWindow(prvMsg);
+            }
+            else if (objReceived.objectType.Equals(typeof(closePrivate).ToString()))
+            {
+                closePrivate closePrv = (closePrivate)objReceived.myObject;
+                clientMW.closePrivate(closePrv);
+            }
             else throw new Exception("Unsupported object type");
         }
 

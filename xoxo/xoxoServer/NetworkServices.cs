@@ -263,6 +263,16 @@ namespace xoxoChat
                 startPrivate startPRV = (startPrivate)objReceived.myObject;
                 STCB.sendMsgToClient(startPRV.withWho, objReceived);
             }
+            if (objReceived.objectType.Equals(typeof(privateMessage).ToString()))
+            {
+                privateMessage prvMsg = (privateMessage)objReceived.myObject;
+                STCB.sendMsgToClient(prvMsg.toWho, objReceived);
+            }
+            if (objReceived.objectType.Equals(typeof(closePrivate).ToString()))
+            {
+                closePrivate closePrv = (closePrivate)objReceived.myObject;
+                STCB.sendMsgToClient(closePrv.toWho, objReceived);
+            }
                 
         }
         

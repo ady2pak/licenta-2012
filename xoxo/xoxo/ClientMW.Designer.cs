@@ -149,7 +149,7 @@
             this.toolStripSeparator1,
             this.prvConv});
             this.userlistContMenu.Name = "userlistContMenu";
-            this.userlistContMenu.Size = new System.Drawing.Size(218, 72);
+            this.userlistContMenu.Size = new System.Drawing.Size(218, 50);
             this.userlistContMenu.Opening += new System.ComponentModel.CancelEventHandler(this.userlistContMenu_Opening);
             // 
             // usernameSelected
