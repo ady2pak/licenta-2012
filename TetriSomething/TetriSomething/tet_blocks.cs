@@ -7,7 +7,7 @@ using System.Windows.Forms;
 
 namespace TetriSomething
 {
-    class blocks
+    class tet_blocks
     {        
         
         string[] shapes = { "I", "J", "L", "O", "S", "Z", "T" };  
@@ -17,11 +17,11 @@ namespace TetriSomething
         int currentRotation;
         int currentAnchorRow;
         int currentAnchorColon;
-        shapes myShapes = new shapes();
+        tet_shapes myShapes = new tet_shapes();
 
         
 
-        public blocks()
+        public tet_blocks()
         {
             for (int i = 0; i < 20; i++)
                 for (int j = 0; j < 10; j++)
@@ -49,29 +49,19 @@ namespace TetriSomething
             currentRotation = 1;
             currentAnchorRow = 4;
             currentAnchorColon = 4;
-            modifyMatrix(currentShape, currentRotation);
+            applyRotation(currentShape, currentRotation);
             
-        }
+        }       
 
         public bool rotateCurrentShape()
         {
-            switch (currentRotation)
-            {
-                case 1:
-                    return rotateFrom1to2();                    
-                case 2:
-                    return rotateFrom2to3();                
-                case 3:
-                    return rotateFrom3to4();                
-                case 4:
-                    return rotateFrom4to1();                
-                default: return false;
-            }
+            rotateFromX(currentRotation);
+            return true;
         }
 
-        void modifyMatrix(string shape, int rotation)
+        string[,] getShape(string shape, int rotation)
         {
-            string[,] toModify = new string[10,20]; 
+            string[,] toModify = new string[10, 20];
 
             if (shape == "I") toModify = myShapes.shapeI[rotation - 1];
             if (shape == "J") toModify = myShapes.shapeJ[rotation - 1];
@@ -81,6 +71,12 @@ namespace TetriSomething
             if (shape == "Z") toModify = myShapes.shapeZ[rotation - 1];
             if (shape == "T") toModify = myShapes.shapeT[rotation - 1];
 
+            return toModify;
+        }
+        void applyRotation(string shape, int rotation)
+        {
+            string[,] toModify = new string[10,20];
+            toModify = getShape(shape, rotation);
 
             for (int row = currentAnchorRow - 1; row <= currentAnchorRow + 1; row++)
                 for (int colon = currentAnchorColon - 1; colon <= currentAnchorColon + 1; colon++)
@@ -88,34 +84,45 @@ namespace TetriSomething
 
         }
 
-        private bool rotateFrom1to2()
+        public bool moveCurrentShapeToRight()
         {
-            currentRotation = 2;
-            modifyMatrix(currentShape, currentRotation);            
-            return true;            
+            string[,] toModify = new string[10, 20];
+            toModify = getShape(currentShape, currentRotation);
+
+            applyMoveToRight(toModify);
+
+            return true;
+        }
+
+        private void applyMoveToRight(string[,] toModify)
+        {
+            for (int row = currentAnchorRow - 1; row <= currentAnchorRow + 1; row++)
+                for (int colon = currentAnchorColon; colon <= currentAnchorColon + 2; colon++)
+                    Matrix[row, colon] = toModify[row - currentAnchorRow + 1, colon - currentAnchorColon];  
+
+            Matrix[currentAnchorRow - 1, currentAnchorColon - 1] = "B";
+            Matrix[currentAnchorRow, currentAnchorColon - 1] = "B";
+            Matrix[currentAnchorRow + 1, currentAnchorColon - 1] = "B";
+
+            currentAnchorColon += 1;
+        }
+
+        
+
+        /// <summary>
+        ///   *** 
+        /// </summary>
+        /// <param name="x"></param>
+        private void rotateFromX(int x)
+        {
+            if (x != 4)
+                currentRotation = x + 1;
+            else
+                currentRotation = 1;
+
+            applyRotation(currentShape, currentRotation);            
         }
         
-        private bool rotateFrom2to3()
-        {
-            currentRotation = 3;
-            modifyMatrix(currentShape, currentRotation);            
-            return true;        
-        }
-
-        private bool rotateFrom3to4()
-        {
-            currentRotation = 4;
-            modifyMatrix(currentShape, currentRotation);            
-            return true;        
-        }
-
-        private bool rotateFrom4to1()
-        {
-            currentRotation = 1;
-            modifyMatrix(currentShape, currentRotation);
-            return true;        
-        }
-
         /// <summary> 
         /// This function calculates weather a line is full. 
         /// </summary> 
@@ -145,25 +152,32 @@ namespace TetriSomething
             return lineToRemove; //failsafe return 
         }
 
-/// <summary> 
-/// Call this to kill a row 
-/// </summary> 
-/// <param name="Matrix">The string 2 sided array of the game board</param> 
-private void doTheRemove(ref string[,] Matrix, int lineToRemove) 
-{ 
-for (int j = lineToRemove; j > 0 ; j--) // line by line 
-{ 
-for (int i = 0; i < 10; i++) // block by block 
-{ 
-if( j == 0) //top row 
-Matrix[i, j] = "B"; //insert blanks 
-else 
-Matrix[i, j] = Matrix[i, j - 1]; //bottom row 
-} 
-} 
-}
+        /// <summary> 
+        /// Call this to kill a row 
+        /// </summary> 
+        /// <param name="Matrix">The string 2 sided array of the game board</param> 
+        private void doTheRemove(ref string[,] Matrix, int lineToRemove) 
+        { 
+            for (int j = lineToRemove; j > 0 ; j--) // line by line 
+            { 
+                for (int i = 0; i < 10; i++) // block by block 
+                { 
+                if( j == 0) //top row 
+                    Matrix[i, j] = "B"; //insert blanks 
+                else 
+                    Matrix[i, j] = Matrix[i, j - 1]; //bottom row 
+                } 
+            } 
+        }
 
+        internal bool moveCurrentShapeToLeft()
+        {
+            throw new NotImplementedException();
+        }
 
-
+        internal bool moveCurrentShapeDown()
+        {
+            throw new NotImplementedException();
+        }
     }
 }
