@@ -97,7 +97,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="blocks.cs" />
+    <Compile Include="tet_blocks.cs" />
     <Compile Include="mainWindow.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -106,7 +106,11 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="shapes.cs" />
+    <Compile Include="tet_constants.cs" />
+    <Compile Include="tet_game.cs" />
+    <Compile Include="tet_score.cs" />
+    <Compile Include="tet_shapes.cs" />
+    <Compile Include="tet_colors.cs" />
     <EmbeddedResource Include="mainWindow.resx">
       <DependentUpon>mainWindow.cs</DependentUpon>
     </EmbeddedResource>
