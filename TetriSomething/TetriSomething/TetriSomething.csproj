@@ -111,6 +111,7 @@
     <Compile Include="tet_score.cs" />
     <Compile Include="tet_shapes.cs" />
     <Compile Include="tet_colors.cs" />
+    <Compile Include="tet_time.cs" />
     <EmbeddedResource Include="mainWindow.resx">
       <DependentUpon>mainWindow.cs</DependentUpon>
     </EmbeddedResource>

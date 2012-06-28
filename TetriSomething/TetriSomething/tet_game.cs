@@ -10,14 +10,21 @@ namespace TetriSomething
        
         static private bool gameOver = false;
         static private int gameState;
-
+        mainWindow mainWindow;
+        tet_blocks blockLogic = new tet_blocks();
+  
         public void callGameOver()
         {
             gameOver = true;
         }
 
+
         public void gameLoop()
-        { 
+        {
+            tet_time time = new tet_time();
+            DateTime current;
+            DateTime last;
+
             do //I AGREE
             {
                 tet_constants game = new tet_constants();
@@ -41,18 +48,30 @@ namespace TetriSomething
                         break;
 
                     case tet_constants.STATE_PLAYING:
-                        //do{
-                            //grab a random shape and place it above the grid
-                            //while (shape can drop to next line)
-                            //{
-			                //drop the shape down a line
-			                //  draw the grid and shape
-			                //  delay the timer and check for input
-                                //if imput is 
-                                    //change game state to other game state
-		                    //}
-		                    //Add the shape to the grid permanantly
+                        {
+                            blockLogic.pushNewPiece();
+                            mainWindow.redrawMatrix(tet_constants.gameMatrix);
+
+                            current = time.getCurrentTime();
+                            last = time.getLastTime();
+
+                            if (DateTime.Compare(current, last.AddSeconds(2)) >= 0)
+                            {
+                                tet_blocks blocks = new tet_blocks();
+                                blocks.moveCurrentShapeDown();
+                                time.setCurrentTime();
+                            }
+                        }
+
+
+                        //if imput is 
+                        //change game state to other game state
+                        //if "ESC" - chage state to State Gameover
+                        //}
+                        //Add the shape to the grid permanantly
                         //}while(The shape is not outside the grid)
+
+
                         break;
                 }
                 //refresh window
@@ -60,6 +79,11 @@ namespace TetriSomething
             } while (!gameOver);
         }
 
+
+        internal void gameLoop(mainWindow mainWindow)
+        {
+           this.mainWindow = mainWindow;
+        }
     }
 }
 
