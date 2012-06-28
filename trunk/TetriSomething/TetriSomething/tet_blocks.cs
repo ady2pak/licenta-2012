@@ -25,7 +25,7 @@ namespace TetriSomething
         char [] currentBlocks, futureBlocks = new char[10];
         
 
-        public tet_blocks()
+        public void initGameMatrix()
         {
             for (int i = 0; i < 20; i++)
                 for (int j = 0; j < 10; j++)

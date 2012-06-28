@@ -35,7 +35,7 @@ namespace TetriSomething
         ///  ***
         /// </summary>
         /// <param name="Matrix"></param>
-        private void redrawMatrix(int[,] Matrix)
+        public void redrawMatrix(int[,] Matrix)
         {
             graphicsObj = this.CreateGraphics();
             tet_colors pieceColor = new tet_colors();
@@ -69,8 +69,16 @@ namespace TetriSomething
         private void Form1_Shown(object sender, EventArgs e)
         {
             blockLogic.initializePieces();
-            blockLogic.pushNewPiece();
-            redrawMatrix(tet_constants.gameMatrix);
+            //blockLogic.pushNewPiece();
+            //redrawMatrix(tet_constants.gameMatrix);
+
+            game.setState(tet_constants.STATE_PLAYING);
+            tet_game TheGame = new tet_game();
+            TheGame.gameLoop(this);
+            //TheGame = null;
+
+            colors.initColorMatrix();
+            blockLogic.initGameMatrix();
 
         }       
 
