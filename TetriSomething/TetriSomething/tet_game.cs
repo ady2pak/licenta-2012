@@ -2,32 +2,38 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Timers;
 
 namespace TetriSomething
 {
     class tet_game
     {
-       
-        static private bool gameOver = false;
-        static private int gameState;
+
+        //static private bool gameOver = false;
+        //static private int gameState;
         mainWindow mainWindow;
-        tet_blocks blockLogic = new tet_blocks();
-  
-        public void callGameOver()
-        {
-            gameOver = true;
-        }
+        tet_blocks blockLogic;
+        tet_constants game = new tet_constants();
+        public Timer autodrop = new Timer(1000);
+
+        //public void callGameOver()
+        //{
+        //    gameOver = true;
+        //}
 
 
-        public void gameLoop()
+        public void gameLoop(mainWindow mainWindow, tet_blocks blockLogic)
         {
+            this.mainWindow = mainWindow;
+            this.blockLogic = blockLogic;
             tet_time time = new tet_time();
-            DateTime current;
-            DateTime last;
 
-            do //I AGREE
+            autodrop.Elapsed += new ElapsedEventHandler(autodrop_initiated);
+            autodrop.Enabled = true;
+
+            /*do //I AGREE
             {
-                tet_constants game = new tet_constants();
+                
 
                 switch (game.getState())
                 {
@@ -49,18 +55,20 @@ namespace TetriSomething
 
                     case tet_constants.STATE_PLAYING:
                         {
-                            blockLogic.pushNewPiece();
-                            mainWindow.redrawMatrix(tet_constants.gameMatrix);
+                            
+                            //Console.WriteLine("i;m functional");
+                            //blockLogic.pushNewPiece();
+                            //mainWindow.redrawMatrix(tet_constants.gameMatrix);
 
-                            current = time.getCurrentTime();
-                            last = time.getLastTime();
+                            //current = time.getCurrentTime();
+                            //last = time.getLastTime();
 
-                            if (DateTime.Compare(current, last.AddSeconds(2)) >= 0)
-                            {
-                                tet_blocks blocks = new tet_blocks();
-                                blocks.moveCurrentShapeDown();
-                                time.setCurrentTime();
-                            }
+                            //if (DateTime.Compare(current, last.AddSeconds(2)) >= 0)
+                            //{
+                            //    tet_blocks blocks = new tet_blocks();
+                            //    blocks.moveCurrentShapeDown();
+                            //    time.setCurrentTime();
+                            //}
                         }
 
 
@@ -73,17 +81,27 @@ namespace TetriSomething
 
 
                         break;
+                    default:
+                        Console.WriteLine("bad");
+                        break;
                 }
                 //refresh window
 
-            } while (!gameOver);
+            } while (!gameOver);*/
         }
 
-
-        internal void gameLoop(mainWindow mainWindow)
-        {
-           this.mainWindow = mainWindow;
+        void autodrop_initiated(object sender, ElapsedEventArgs e)
+        {            
+            bool isValid = blockLogic.moveCurrentShapeDown();
+            if (isValid) mainWindow.redrawMatrix(mainWindow.graphicsObj2);
+            else
+            {
+                mainWindow.isGameStarted = false;
+                autodrop.Enabled = false;
+                mainWindow.redrawMatrix(mainWindow.graphicsObj2);
+                mainWindow.drawString();
+                    
+            }            
         }
     }
 }
-
