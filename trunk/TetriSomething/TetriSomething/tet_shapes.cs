@@ -34,8 +34,8 @@ namespace TetriSomething
         private int[,] Z3 = { { 0, 1 }, { -1, 0 }, { -1, -1 } };
         private int[,] Z4 = { { 1, 0 }, { 0, 1 }, { -1, 1 } };
 
-        private int[,] I1 = { { 0, -2 }, { 0, -1 }, { 0, 1 } }; //OK
-        private int[,] I2 = { { -2, 0 }, { -1, 0 }, { 1, 0 } };
+        private int[,] I1 = { { 0, -1 }, { 0, 1 }, { 0, 2 } }; //OK
+        private int[,] I2 = { { -1, 0 }, { 1, 0 }, { 2, 0 } };
 
         public List<int[,]> shapeO;
         public List<int[,]> shapeL;
