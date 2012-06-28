@@ -10,15 +10,19 @@ namespace TetriSomething
     class tet_blocks
     {        
         
-        string[] shapes = { "I", "J", "L", "O", "S", "Z", "T" };  
+        char[] shapes = { 'i', 'j', 'l', 'o', 's', 'z', 't' };  
         Random random = new Random();
-        tet_constants game = new tet_constants();        
-        string currentShape;
+        tet_constants game = new tet_constants();
+        tet_shapes myShapes = new tet_shapes();
+        tet_colors colors = new tet_colors();
+        public tet_score myScore = new tet_score();
+        public char currentShape;
         int currentRotation;
         int currentAnchorRow;
-        int currentAnchorColumn;
-        tet_shapes myShapes = new tet_shapes();
-
+        int currentAnchorColumn;        
+        public int usedShapesNr = -1;
+        public int clearedLines = 0;
+        char [] currentBlocks, futureBlocks = new char[10];
         
 
         public tet_blocks()
@@ -28,9 +32,9 @@ namespace TetriSomething
                     tet_constants.gameMatrix[i, j] = 0;
         }
 
-        public string[] generateNextBlocks()
+        public char[] generateNextBlocks()
         {
-            string[] _blocks = new string[10];
+            char[] _blocks = new char[10];
             int rnd;
             for (int i = 0; i < 10; i++)
             {
@@ -44,12 +48,33 @@ namespace TetriSomething
 
         public void pushNewPiece()
         {
-            string[] currentBlocks = generateNextBlocks();
-            currentShape = currentBlocks[0];            
+            usedShapesNr++;
+
+            if (usedShapesNr != 0 && usedShapesNr % 10 == 0)
+            {
+                currentBlocks = futureBlocks;
+                futureBlocks = generateNextBlocks();
+            }
+
+            currentShape = currentBlocks[usedShapesNr % 10];
+            
             currentRotation = 1;
-            currentAnchorRow = 4;
-            currentAnchorColumn = 4;
-            applyRotation(currentShape, currentRotation);
+            currentAnchorRow = 1;
+            currentAnchorColumn = 5;
+
+            int[,] newPosition = new int[3, 4];
+            newPosition = getShape(currentShape, currentRotation);
+
+            tet_constants.gameMatrix[currentAnchorRow, currentAnchorColumn] = 1;
+            tet_constants.gameMatrix[currentAnchorRow + newPosition[0, 0], currentAnchorColumn + newPosition[0, 1]] = 1;
+            tet_constants.gameMatrix[currentAnchorRow + newPosition[1, 0], currentAnchorColumn + newPosition[1, 1]] = 1;
+            tet_constants.gameMatrix[currentAnchorRow + newPosition[2, 0], currentAnchorColumn + newPosition[2, 1]] = 1;
+
+            tet_constants.colorMatrix[currentAnchorRow, currentAnchorColumn] = currentShape;
+            tet_constants.colorMatrix[currentAnchorRow + newPosition[0, 0], currentAnchorColumn + newPosition[0, 1]] = currentShape;
+            tet_constants.colorMatrix[currentAnchorRow + newPosition[1, 0], currentAnchorColumn + newPosition[1, 1]] = currentShape;
+            tet_constants.colorMatrix[currentAnchorRow + newPosition[2, 0], currentAnchorColumn + newPosition[2, 1]] = currentShape;
+           
             
         }       
 
@@ -59,22 +84,22 @@ namespace TetriSomething
             return wasSuccesfull;
         }
 
-        int[,] getShape(string shape, int rotation)
+        int[,] getShape(char shape, int rotation)
         {
             int[,] toModify = new int[3, 4];
 
-            if (shape == "I") toModify = myShapes.shapeI[rotation - 1];
-            if (shape == "J") toModify = myShapes.shapeJ[rotation - 1];
-            if (shape == "L") toModify = myShapes.shapeL[rotation - 1];
-            if (shape == "O") toModify = myShapes.shapeO[rotation - 1];
-            if (shape == "S") toModify = myShapes.shapeS[rotation - 1];
-            if (shape == "Z") toModify = myShapes.shapeZ[rotation - 1];
-            if (shape == "T") toModify = myShapes.shapeT[rotation - 1];
+            if (shape == 'i') toModify = myShapes.shapeI[rotation - 1];
+            else if (shape == 'j') toModify = myShapes.shapeJ[rotation - 1];
+            else if (shape == 'l') toModify = myShapes.shapeL[rotation - 1];
+            else if (shape == 'o') toModify = myShapes.shapeO[rotation - 1];
+            else if (shape == 's') toModify = myShapes.shapeS[rotation - 1];
+            else if (shape == 'z') toModify = myShapes.shapeZ[rotation - 1];
+            else if (shape == 't') toModify = myShapes.shapeT[rotation - 1];
 
             return toModify;
         }
 
-        bool applyRotation(string shape, int rotation)
+        bool applyRotation(char shape, int rotation)
         {
             int[,] newPosition = new int[3, 4];
             newPosition = getShape(shape, rotation);
@@ -92,12 +117,22 @@ namespace TetriSomething
             tet_constants.gameMatrix[currentAnchorRow + oldPosition[1, 0], currentAnchorColumn + oldPosition[1, 1]] = 0;
             tet_constants.gameMatrix[currentAnchorRow + oldPosition[2, 0], currentAnchorColumn + oldPosition[2, 1]] = 0;
 
+            tet_constants.colorMatrix[currentAnchorRow, currentAnchorColumn] = 'w';
+            tet_constants.colorMatrix[currentAnchorRow + oldPosition[0, 0], currentAnchorColumn + oldPosition[0, 1]] = 'w';
+            tet_constants.colorMatrix[currentAnchorRow + oldPosition[1, 0], currentAnchorColumn + oldPosition[1, 1]] = 'w';
+            tet_constants.colorMatrix[currentAnchorRow + oldPosition[2, 0], currentAnchorColumn + oldPosition[2, 1]] = 'w';
+
             currentAnchorColumn += bounce;
 
             tet_constants.gameMatrix[currentAnchorRow, currentAnchorColumn] = 1;
             tet_constants.gameMatrix[currentAnchorRow + newPosition[0, 0], currentAnchorColumn + newPosition[0, 1]] = 1;
             tet_constants.gameMatrix[currentAnchorRow + newPosition[1, 0], currentAnchorColumn + newPosition[1, 1]] = 1;
             tet_constants.gameMatrix[currentAnchorRow + newPosition[2, 0], currentAnchorColumn + newPosition[2, 1]] = 1;
+
+            tet_constants.colorMatrix[currentAnchorRow, currentAnchorColumn] = currentShape;
+            tet_constants.colorMatrix[currentAnchorRow + newPosition[0, 0], currentAnchorColumn + newPosition[0, 1]] = currentShape;
+            tet_constants.colorMatrix[currentAnchorRow + newPosition[1, 0], currentAnchorColumn + newPosition[1, 1]] = currentShape;
+            tet_constants.colorMatrix[currentAnchorRow + newPosition[2, 0], currentAnchorColumn + newPosition[2, 1]] = currentShape;
 
             return true;
         }
@@ -225,12 +260,22 @@ namespace TetriSomething
             tet_constants.gameMatrix[currentAnchorRow + shape[1, 0], currentAnchorColumn + shape[1, 1]] = 0;
             tet_constants.gameMatrix[currentAnchorRow + shape[2, 0], currentAnchorColumn + shape[2, 1]] = 0;
 
+            tet_constants.colorMatrix[currentAnchorRow, currentAnchorColumn] = 'w';
+            tet_constants.colorMatrix[currentAnchorRow + shape[0, 0], currentAnchorColumn + shape[0, 1]] = 'w';
+            tet_constants.colorMatrix[currentAnchorRow + shape[1, 0], currentAnchorColumn + shape[1, 1]] = 'w';
+            tet_constants.colorMatrix[currentAnchorRow + shape[2, 0], currentAnchorColumn + shape[2, 1]] = 'w';
+
             currentAnchorColumn += 1; 
 
             tet_constants.gameMatrix[currentAnchorRow, currentAnchorColumn] = 1;
             tet_constants.gameMatrix[currentAnchorRow + shape[0, 0], currentAnchorColumn + shape[0, 1]] = 1;
             tet_constants.gameMatrix[currentAnchorRow + shape[1, 0], currentAnchorColumn + shape[1, 1]] = 1;
-            tet_constants.gameMatrix[currentAnchorRow + shape[2, 0], currentAnchorColumn + shape[2, 1]] = 1;            
+            tet_constants.gameMatrix[currentAnchorRow + shape[2, 0], currentAnchorColumn + shape[2, 1]] = 1;
+
+            tet_constants.colorMatrix[currentAnchorRow, currentAnchorColumn] = currentShape;
+            tet_constants.colorMatrix[currentAnchorRow + shape[0, 0], currentAnchorColumn + shape[0, 1]] = currentShape;
+            tet_constants.colorMatrix[currentAnchorRow + shape[1, 0], currentAnchorColumn + shape[1, 1]] = currentShape;
+            tet_constants.colorMatrix[currentAnchorRow + shape[2, 0], currentAnchorColumn + shape[2, 1]] = currentShape;
         }        
 
         private void applyMoveToLeft(int[,] shape)
@@ -244,12 +289,22 @@ namespace TetriSomething
             tet_constants.gameMatrix[currentAnchorRow + shape[1, 0], currentAnchorColumn + shape[1, 1]] = 0;
             tet_constants.gameMatrix[currentAnchorRow + shape[2, 0], currentAnchorColumn + shape[2, 1]] = 0;
 
+            tet_constants.colorMatrix[currentAnchorRow, currentAnchorColumn] = 'w';
+            tet_constants.colorMatrix[currentAnchorRow + shape[0, 0], currentAnchorColumn + shape[0, 1]] = 'w';
+            tet_constants.colorMatrix[currentAnchorRow + shape[1, 0], currentAnchorColumn + shape[1, 1]] = 'w';
+            tet_constants.colorMatrix[currentAnchorRow + shape[2, 0], currentAnchorColumn + shape[2, 1]] = 'w';
+
             currentAnchorColumn -= 1;
 
             tet_constants.gameMatrix[currentAnchorRow, currentAnchorColumn] = 1;
             tet_constants.gameMatrix[currentAnchorRow + shape[0, 0], currentAnchorColumn + shape[0, 1]] = 1;
             tet_constants.gameMatrix[currentAnchorRow + shape[1, 0], currentAnchorColumn + shape[1, 1]] = 1;
-            tet_constants.gameMatrix[currentAnchorRow + shape[2, 0], currentAnchorColumn + shape[2, 1]] = 1;    
+            tet_constants.gameMatrix[currentAnchorRow + shape[2, 0], currentAnchorColumn + shape[2, 1]] = 1;
+
+            tet_constants.colorMatrix[currentAnchorRow, currentAnchorColumn] = currentShape;
+            tet_constants.colorMatrix[currentAnchorRow + shape[0, 0], currentAnchorColumn + shape[0, 1]] = currentShape;
+            tet_constants.colorMatrix[currentAnchorRow + shape[1, 0], currentAnchorColumn + shape[1, 1]] = currentShape;
+            tet_constants.colorMatrix[currentAnchorRow + shape[2, 0], currentAnchorColumn + shape[2, 1]] = currentShape;
         }
 
         internal bool moveCurrentShapeDown()
@@ -261,26 +316,42 @@ namespace TetriSomething
 
             if (isFinalMove)
             {
+                int clearedLinesThisDrop = 0;
                 int iCanStillRemove = removeOrNotAndWhat(tet_constants.gameMatrix);
                 while (iCanStillRemove != -1)
                 {
-                    iCanStillRemove = removeOrNotAndWhat(tet_constants.gameMatrix);
                     doTheRemove(tet_constants.gameMatrix, iCanStillRemove);
+                    clearedLinesThisDrop++;
+                    iCanStillRemove = removeOrNotAndWhat(tet_constants.gameMatrix);                   
+                    
                 }
+
+                //clearedLinesThisDrop--;
+
+                if (clearedLinesThisDrop != 0)
+                {
+                    myScore.addScoringMove(clearedLinesThisDrop);
+                    clearedLines += clearedLinesThisDrop;
+                }
+                else myScore.addNonScoringMove();
                 pushNewPiece(); }
             return true;
         }
 
         private bool applyMoveDown(int[,] shape)
         {
-            //if (currentAnchorRow == 18) return true;
-
             if (touchingLowerBound(shape))
             {
                 tet_constants.gameMatrix[currentAnchorRow, currentAnchorColumn] = 1;
                 tet_constants.gameMatrix[currentAnchorRow + shape[0, 0], currentAnchorColumn + shape[0, 1]] = 1;
                 tet_constants.gameMatrix[currentAnchorRow + shape[1, 0], currentAnchorColumn + shape[1, 1]] = 1;
                 tet_constants.gameMatrix[currentAnchorRow + shape[2, 0], currentAnchorColumn + shape[2, 1]] = 1;
+
+                tet_constants.colorMatrix[currentAnchorRow, currentAnchorColumn] = currentShape;
+                tet_constants.colorMatrix[currentAnchorRow + shape[0, 0], currentAnchorColumn + shape[0, 1]] = currentShape;
+                tet_constants.colorMatrix[currentAnchorRow + shape[1, 0], currentAnchorColumn + shape[1, 1]] = currentShape;
+                tet_constants.colorMatrix[currentAnchorRow + shape[2, 0], currentAnchorColumn + shape[2, 1]] = currentShape;
+
                 return true;
             }
 
@@ -288,6 +359,11 @@ namespace TetriSomething
             tet_constants.gameMatrix[currentAnchorRow + shape[0, 0], currentAnchorColumn + shape[0, 1]] = 0;
             tet_constants.gameMatrix[currentAnchorRow + shape[1, 0], currentAnchorColumn + shape[1, 1]] = 0;
             tet_constants.gameMatrix[currentAnchorRow + shape[2, 0], currentAnchorColumn + shape[2, 1]] = 0;
+
+            tet_constants.colorMatrix[currentAnchorRow, currentAnchorColumn] = 'w';
+            tet_constants.colorMatrix[currentAnchorRow + shape[0, 0], currentAnchorColumn + shape[0, 1]] = 'w';
+            tet_constants.colorMatrix[currentAnchorRow + shape[1, 0], currentAnchorColumn + shape[1, 1]] = 'w';
+            tet_constants.colorMatrix[currentAnchorRow + shape[2, 0], currentAnchorColumn + shape[2, 1]] = 'w';
 
             if ((tet_constants.gameMatrix[currentAnchorRow + 1, currentAnchorColumn] == 1) ||
                 (tet_constants.gameMatrix[currentAnchorRow + 1 + shape[0, 0], currentAnchorColumn + shape[0, 1]] == 1) ||
@@ -298,6 +374,12 @@ namespace TetriSomething
                 tet_constants.gameMatrix[currentAnchorRow + shape[0, 0], currentAnchorColumn + shape[0, 1]] = 1;
                 tet_constants.gameMatrix[currentAnchorRow + shape[1, 0], currentAnchorColumn + shape[1, 1]] = 1;
                 tet_constants.gameMatrix[currentAnchorRow + shape[2, 0], currentAnchorColumn + shape[2, 1]] = 1;
+
+                tet_constants.colorMatrix[currentAnchorRow, currentAnchorColumn] = currentShape;
+                tet_constants.colorMatrix[currentAnchorRow + shape[0, 0], currentAnchorColumn + shape[0, 1]] = currentShape;
+                tet_constants.colorMatrix[currentAnchorRow + shape[1, 0], currentAnchorColumn + shape[1, 1]] = currentShape;
+                tet_constants.colorMatrix[currentAnchorRow + shape[2, 0], currentAnchorColumn + shape[2, 1]] = currentShape;
+
                 return true;
             }            
 
@@ -306,7 +388,12 @@ namespace TetriSomething
             tet_constants.gameMatrix[currentAnchorRow, currentAnchorColumn] = 1;
             tet_constants.gameMatrix[currentAnchorRow + shape[0, 0], currentAnchorColumn + shape[0, 1]] = 1;
             tet_constants.gameMatrix[currentAnchorRow + shape[1, 0], currentAnchorColumn + shape[1, 1]] = 1;
-            tet_constants.gameMatrix[currentAnchorRow + shape[2, 0], currentAnchorColumn + shape[2, 1]] = 1; 
+            tet_constants.gameMatrix[currentAnchorRow + shape[2, 0], currentAnchorColumn + shape[2, 1]] = 1;
+
+            tet_constants.colorMatrix[currentAnchorRow, currentAnchorColumn] = currentShape;
+            tet_constants.colorMatrix[currentAnchorRow + shape[0, 0], currentAnchorColumn + shape[0, 1]] = currentShape;
+            tet_constants.colorMatrix[currentAnchorRow + shape[1, 0], currentAnchorColumn + shape[1, 1]] = currentShape;
+            tet_constants.colorMatrix[currentAnchorRow + shape[2, 0], currentAnchorColumn + shape[2, 1]] = currentShape;
 
             return false;
         }
@@ -366,8 +453,15 @@ namespace TetriSomething
             for (int i = lineToRemove; i > 0; i--)
                 for (int j = 0; j < 10; j++)
                 {
+                    tet_constants.colorMatrix[i, j] = tet_constants.colorMatrix[i - 1, j];
                     Matrix[i, j] = Matrix[i - 1, j];
                 }
+        }
+
+        public void initializePieces()
+        {
+            currentBlocks = generateNextBlocks();
+            futureBlocks = generateNextBlocks();
         }
 
     }

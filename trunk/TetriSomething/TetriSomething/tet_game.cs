@@ -36,6 +36,10 @@ namespace TetriSomething
                         //DrawSettings();
                         break;
 
+                    case tet_constants.STATE_GAMEOVER:
+                        callGameOver();
+                        break;
+
                     case tet_constants.STATE_PLAYING:
                         //do{
                             //grab a random shape and place it above the grid

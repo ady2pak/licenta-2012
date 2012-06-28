@@ -14,10 +14,13 @@ namespace TetriSomething
         public const int STATE_HELP =     00005;
         public const int STATE_SETTINGS = 00006;
         public const int STATE_PLAYING =  00007;
+        public const int STATE_GAMEOVER = 00008;
         
         private int gameState = 00001;
 
         public static int[,] gameMatrix = new int[20, 10];
+        public static char[,] colorMatrix = new char[20, 10];
+        public static int[,] nextPieceMatrix = new int[3, 4];
 
         /// <summary>
         /// sets the game state
