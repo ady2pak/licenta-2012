@@ -6,36 +6,45 @@ using System.Text;
 namespace TetriSomething
 {
     public class tet_colors
-    {      
-        public string getPieceColor(string pieceData)
-        {
+    {
+        
 
-             string[] listColors = new string[8] {"png/block_white.png",
-                                                "png/block_green.png" ,
+        public void initColorMatrix()
+        {
+            for (int row = 0; row < 20; row++)
+                for (int column = 0; column < 10; column++)
+                    tet_constants.colorMatrix[row, column] = 'w';
+        }
+
+        public string getPieceColor(char pieceData)
+        {
+            
+
+            //string[] shapes = { "I", "J", "L", "O", "S", "Z", "T" };  
+            string[] listColors = new string[8] {"png/block_white.png",
+                                                "png/block_cyan.png" ,
                                                 "png/block_blue.png",
-                                                "png/block_grey.png",
                                                 "png/block_orange.png",
-                                                "png/block_pink.png",
-                                                "png/block_red.png",
-                                                "png/block_yellow.png"};
+                                                "png/block_yellow.png",
+                                                "png/block_green.png",
+                                                "png/block_purple.png",
+                                                "png/block_red.png"};
 
             switch (pieceData)
             {
-                case "B": 
-                    return listColors[0];
-                case "I": 
+                case 'i': 
                     return listColors[1];
-                case "J": 
+                case 'j': 
                     return listColors[2];
-                case "L": 
+                case 'l': 
                     return listColors[3];
-                case "O": 
+                case 'o': 
                     return listColors[4];
-                case "S": 
+                case 's': 
                     return listColors[5];
-                case "Z":
+                case 'z':
                     return listColors[6];
-                case "T": 
+                case 't': 
                     return listColors[7];
                 default:
                     return listColors[0]; // default is blank

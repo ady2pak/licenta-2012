@@ -9,10 +9,16 @@ namespace TetriSomething
     {
         private long Score = 0;
         private string LastAction = "NonScoring";
+        private long scoreMultiplierGlobal = 0;
 
         public long getScore()
         {
             return Score;
+        }
+
+        public long getScoreMultiplier()
+        {
+            return scoreMultiplierGlobal;
         }
 
         private long processLastAction()
@@ -27,6 +33,7 @@ namespace TetriSomething
                 case "Tetris": scoreMultiplier = 16; break;
                 default: scoreMultiplier = 1; break;
             }
+            scoreMultiplierGlobal = scoreMultiplier;
             return scoreMultiplier;
         }
 
@@ -39,26 +46,26 @@ namespace TetriSomething
         /// adds set score to the total score
         /// </summary>
         /// <param name="action"></param>
-        public void addScoringMove(string action)
+        public void addScoringMove(int clearedLines)
         {
-            switch (action)
+            switch (clearedLines)
             {
-                case "Single":
+                case 1:
                     {
                         Score = Score + (100 * processLastAction());
                         LastAction = "Single";
                     };break;
-                case "Double":
+                case 2:
                                        {
                         Score = Score + (300 * processLastAction());
                         LastAction = "Double";
                     };break;
-                case "Tripple":
+                case 3:
                                         {
                         Score = Score + (500 * processLastAction());
                         LastAction = "Triple";
                     };break;
-                case "Tetris":
+                case 4:
                                        {
                         Score = Score + (800 * processLastAction());
                         LastAction = "Tetris";
