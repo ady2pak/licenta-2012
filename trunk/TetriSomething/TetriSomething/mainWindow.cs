@@ -46,23 +46,9 @@ namespace TetriSomething
                     if (tet_constants.gameMatrix[row, column] == 1) _png = Image.FromFile("png/block_red.png");
                     else _png = Image.FromFile("png/block_white.png");
                     graphicsObj.DrawImage(_png, new Rectangle(90 + column * 30, 90 + row * 30, 30, 30));
-                }
-            //for (int row = 0; row < 20; row++)
-            //    for (int column = 0; column < 10; column++)
-            //    {
-            //        Image _png = Image.FromFile(pieceColor.getPieceColor(Matrix[row, column]));
-            //        graphicsObj.DrawImage(_png, new Rectangle(90 + column * 30, 90 + row * 30, 30, 30));
-                 
-            //    }
-
-            //pieceColor = null;
+                }         
         } 
-
-        /// <summary>
-        ///  ***
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
+      
         private void Form1_Shown(object sender, EventArgs e)
         {
             blockLogic.pushNewPiece();
@@ -74,25 +60,21 @@ namespace TetriSomething
         {
             if (e.KeyCode == Keys.Up)
             {
-                //Console.WriteLine("UP!");
                 bool isValid = blockLogic.rotateCurrentShape();
                 if (isValid) redrawMatrix(tet_constants.gameMatrix);
             }
             if (e.KeyCode == Keys.Left)
             {
-                //Console.WriteLine("LEFT!");
                 bool isValid = blockLogic.moveCurrentShape(-1);
                 if (isValid) redrawMatrix(tet_constants.gameMatrix);
             }
             if (e.KeyCode == Keys.Right)
             {
-                //Console.WriteLine("RIGHT!");
                 bool isValid = blockLogic.moveCurrentShape(1);
                 if (isValid) redrawMatrix(tet_constants.gameMatrix);
             }
             if (e.KeyCode == Keys.Down)
             {
-                //Console.WriteLine("DOWN!");
                 bool isValid = blockLogic.moveCurrentShapeDown();
                 if (isValid) redrawMatrix(tet_constants.gameMatrix);
             }
