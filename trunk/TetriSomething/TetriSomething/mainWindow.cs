@@ -15,6 +15,7 @@ namespace TetriSomething
         string[] currentBlocks, futureBlocks = new string[10];
         
         Random random = new Random();
+        tet_constants game = new tet_constants();
 
         System.Drawing.Graphics graphicsObj;
         Pen myPen = new Pen(System.Drawing.Color.Black, 3);
@@ -24,7 +25,7 @@ namespace TetriSomething
         {            
             InitializeComponent();
             blockLogic = new tet_blocks();
-            currentBlocks = blockLogic.generateNextBlocks();
+            currentBlocks = blockLogic.generateNextBlocks();            
             futureBlocks = blockLogic.generateNextBlocks();           
             this.KeyDown += new KeyEventHandler(tick);            
         }
@@ -33,20 +34,28 @@ namespace TetriSomething
         ///  ***
         /// </summary>
         /// <param name="Matrix"></param>
-        private void redrawMatrix(string[,] Matrix)
+        private void redrawMatrix(int[,] Matrix)
         {
             graphicsObj = this.CreateGraphics();
             tet_colors pieceColor = new tet_colors();
-            
-            for (int row = 0; row < 20; row++)
-                for (int colon = 0; colon < 10; colon++)
-                {
-                    Image _png = Image.FromFile(pieceColor.getPieceColor(Matrix[row, colon]));
-                    graphicsObj.DrawImage(_png, new Rectangle(90 + colon * 30, 90 + row * 30, 30, 30));
-                 
-                }
+            Image _png;
 
-            pieceColor = null;
+            for (int row = 0; row < 20; row++)
+                for (int column = 0; column < 10; column++)
+                {
+                    if (tet_constants.gameMatrix[row, column] == 1) _png = Image.FromFile("png/block_red.png");
+                    else _png = Image.FromFile("png/block_white.png");
+                    graphicsObj.DrawImage(_png, new Rectangle(90 + column * 30, 90 + row * 30, 30, 30));
+                }
+            //for (int row = 0; row < 20; row++)
+            //    for (int column = 0; column < 10; column++)
+            //    {
+            //        Image _png = Image.FromFile(pieceColor.getPieceColor(Matrix[row, column]));
+            //        graphicsObj.DrawImage(_png, new Rectangle(90 + column * 30, 90 + row * 30, 30, 30));
+                 
+            //    }
+
+            //pieceColor = null;
         } 
 
         /// <summary>
@@ -57,32 +66,35 @@ namespace TetriSomething
         private void Form1_Shown(object sender, EventArgs e)
         {
             blockLogic.pushNewPiece();
-            redrawMatrix(blockLogic.Matrix);
+            redrawMatrix(tet_constants.gameMatrix);
 
         }       
 
         void tick(object sender, KeyEventArgs e)
         {
-            if (e.KeyCode == Keys.Up) 
-            { 
-                Console.WriteLine("UP!");
+            if (e.KeyCode == Keys.Up)
+            {
+                //Console.WriteLine("UP!");
                 bool isValid = blockLogic.rotateCurrentShape();
-                if (isValid) redrawMatrix(blockLogic.Matrix);
+                if (isValid) redrawMatrix(tet_constants.gameMatrix);
             }
-            if (e.KeyCode == Keys.Left) { 
-                Console.WriteLine("LEFT!");
-                bool isValid = blockLogic.moveCurrentShapeToLeft();
-                if (isValid) redrawMatrix(blockLogic.Matrix);
+            if (e.KeyCode == Keys.Left)
+            {
+                //Console.WriteLine("LEFT!");
+                bool isValid = blockLogic.moveCurrentShape(-1);
+                if (isValid) redrawMatrix(tet_constants.gameMatrix);
             }
-            if (e.KeyCode == Keys.Right) { 
-                Console.WriteLine("RIGHT!");
-                bool isValid = blockLogic.moveCurrentShapeToRight();
-                if (isValid) redrawMatrix(blockLogic.Matrix);
+            if (e.KeyCode == Keys.Right)
+            {
+                //Console.WriteLine("RIGHT!");
+                bool isValid = blockLogic.moveCurrentShape(1);
+                if (isValid) redrawMatrix(tet_constants.gameMatrix);
             }
-            if (e.KeyCode == Keys.Down) { 
-                Console.WriteLine("DOWN!");
+            if (e.KeyCode == Keys.Down)
+            {
+                //Console.WriteLine("DOWN!");
                 bool isValid = blockLogic.moveCurrentShapeDown();
-                if (isValid) redrawMatrix(blockLogic.Matrix);
+                if (isValid) redrawMatrix(tet_constants.gameMatrix);
             }
         }   
     }

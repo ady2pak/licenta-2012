@@ -17,37 +17,45 @@ namespace TetriSomething
         }
 
         public void gameLoop()
-        {
-            while (!gameOver)
+        { 
+            do //I AGREE
             {
                 tet_constants game = new tet_constants();
-                
-              switch (game.getState())
+
+                switch (game.getState())
                 {
                     case tet_constants.STATE_TITLE:
                         //titleScreen.Draw();
                         break;
-               
+
                     case tet_constants.STATE_PLAY:
                         //playScreen.Draw();
                         break;
-                  
+
                     case tet_constants.STATE_OPTIONS:
-                       //DrawSettings();
+                        //DrawSettings();
                         break;
-                   
+
                     case tet_constants.STATE_PLAYING:
-                       //game.gameDevice.Clear(Color.Black); MIGHT CAUSE LAG??
-                       // doStuff();
-                       
-                      //print info
-                      break;
-                } 
+                        //do{
+                            //grab a random shape and place it above the grid
+                            //while (shape can drop to next line)
+                            //{
+			                //drop the shape down a line
+			                //  draw the grid and shape
+			                //  delay the timer and check for input
+                                //if imput is 
+                                    //change game state to other game state
+		                    //}
+		                    //Add the shape to the grid permanantly
+                        //}while(The shape is not outside the grid)
+                        break;
+                }
                 //refresh window
 
-            }
-            }
-
+            } while (!gameOver);
         }
+
     }
+}
 

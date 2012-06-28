@@ -12,11 +12,12 @@ namespace TetriSomething
         
         string[] shapes = { "I", "J", "L", "O", "S", "Z", "T" };  
         Random random = new Random();
-        public string[,] Matrix = new string[20, 10];
+        tet_constants game = new tet_constants();
+        //public string[,] game.gameMatrix = new string[20, 10];
         string currentShape;
         int currentRotation;
         int currentAnchorRow;
-        int currentAnchorColon;
+        int currentAnchorColumn;
         tet_shapes myShapes = new tet_shapes();
 
         
@@ -25,7 +26,7 @@ namespace TetriSomething
         {
             for (int i = 0; i < 20; i++)
                 for (int j = 0; j < 10; j++)
-                    Matrix[i, j] = "B";
+                    tet_constants.gameMatrix[i, j] = 0;
         }
 
         public string[] generateNextBlocks()
@@ -48,7 +49,7 @@ namespace TetriSomething
             currentShape = currentBlocks[0];            
             currentRotation = 1;
             currentAnchorRow = 4;
-            currentAnchorColon = 4;
+            currentAnchorColumn = 4;
             applyRotation(currentShape, currentRotation);
             
         }       
@@ -59,9 +60,9 @@ namespace TetriSomething
             return true;
         }
 
-        string[,] getShape(string shape, int rotation)
+        int[,] getShape(string shape, int rotation)
         {
-            string[,] toModify = new string[10, 20];
+            int[,] toModify = new int[3, 4];
 
             if (shape == "I") toModify = myShapes.shapeI[rotation - 1];
             if (shape == "J") toModify = myShapes.shapeJ[rotation - 1];
@@ -73,41 +74,149 @@ namespace TetriSomething
 
             return toModify;
         }
+
         void applyRotation(string shape, int rotation)
         {
-            string[,] toModify = new string[10,20];
-            toModify = getShape(shape, rotation);
+            int[,] newPosition = new int[3, 4];
+            newPosition = getShape(shape, rotation);
 
-            for (int row = currentAnchorRow - 1; row <= currentAnchorRow + 1; row++)
-                for (int colon = currentAnchorColon - 1; colon <= currentAnchorColon + 1; colon++)
-                    Matrix[row, colon] = toModify[row - currentAnchorRow + 1, colon - currentAnchorColon + 1];  
+            int[,] oldPosition = new int[3, 4];
+            if (rotation != 1) oldPosition = getShape(shape, rotation - 1);
+            else oldPosition = getShape(shape, 4);
+
+            tet_constants.gameMatrix[currentAnchorRow, currentAnchorColumn] = 0;
+            tet_constants.gameMatrix[currentAnchorRow + oldPosition[0, 0], currentAnchorColumn + oldPosition[0, 1]] = 0;
+            tet_constants.gameMatrix[currentAnchorRow + oldPosition[1, 0], currentAnchorColumn + oldPosition[1, 1]] = 0;
+            tet_constants.gameMatrix[currentAnchorRow + oldPosition[2, 0], currentAnchorColumn + oldPosition[2, 1]] = 0;
+
+            tet_constants.gameMatrix[currentAnchorRow, currentAnchorColumn] = 1;
+            tet_constants.gameMatrix[currentAnchorRow + newPosition[0, 0], currentAnchorColumn + newPosition[0, 1]] = 1;
+            tet_constants.gameMatrix[currentAnchorRow + newPosition[1, 0], currentAnchorColumn + newPosition[1, 1]] = 1;
+            tet_constants.gameMatrix[currentAnchorRow + newPosition[2, 0], currentAnchorColumn + newPosition[2, 1]] = 1;           
 
         }
 
-        public bool moveCurrentShapeToRight()
+        public bool moveCurrentShape(int where)
         {
-            string[,] toModify = new string[10, 20];
-            toModify = getShape(currentShape, currentRotation);
+            int[,] shape = new int[3, 4];
+            shape = getShape(currentShape, currentRotation);
 
-            applyMoveToRight(toModify);
+            if (where == 1) applyMoveToRight(shape);
+            else applyMoveToLeft(shape);
 
             return true;
         }
 
-        private void applyMoveToRight(string[,] toModify)
+        private void applyMoveToRight(int[,] shape)
         {
-            for (int row = currentAnchorRow - 1; row <= currentAnchorRow + 1; row++)
-                for (int colon = currentAnchorColon; colon <= currentAnchorColon + 2; colon++)
-                    Matrix[row, colon] = toModify[row - currentAnchorRow + 1, colon - currentAnchorColon];  
+            //if ((currentAnchorColumn == 8 || currentAnchorColumn == 1) && toModify[0, 2] == "B" && toModify[1, 2] == "B" && toModify[2, 2] == "B")
+            //{   //case for edge of screen
+            //    toModify[0, 2] = toModify[0, 1]; toModify[0, 1] = toModify[0, 0]; toModify[0, 0] = "B";
+            //    toModify[1, 2] = toModify[1, 1]; toModify[1, 1] = toModify[1, 0]; toModify[1, 0] = "B";
+            //    toModify[2, 2] = toModify[2, 1]; toModify[2, 1] = toModify[2, 0]; toModify[2, 0] = "B";
 
-            Matrix[currentAnchorRow - 1, currentAnchorColon - 1] = "B";
-            Matrix[currentAnchorRow, currentAnchorColon - 1] = "B";
-            Matrix[currentAnchorRow + 1, currentAnchorColon - 1] = "B";
+            //    for (int row = currentAnchorRow - 1; row <= currentAnchorRow + 1; row++)
+            //        for (int column = currentAnchorColumn - 1; column <= currentAnchorColumn + 1; column++)
+            //            tet_constants.gameMatrix[row, column] = toModify[row - currentAnchorRow + 1, column - currentAnchorColumn + 1];
 
-            currentAnchorColon += 1;
+            //    tet_constants.gameMatrix[currentAnchorRow - 1, currentAnchorColumn - 1] = "B";
+            //    tet_constants.gameMatrix[currentAnchorRow, currentAnchorColumn - 1] = "B";
+            //    tet_constants.gameMatrix[currentAnchorRow + 1, currentAnchorColumn - 1] = "B";
+
+            //    return;
+            //}
+
+            if (currentAnchorColumn + 1 > 8) return;
+
+            tet_constants.gameMatrix[currentAnchorRow, currentAnchorColumn] = 0;
+            tet_constants.gameMatrix[currentAnchorRow + shape[0, 0], currentAnchorColumn + shape[0, 1]] = 0;
+            tet_constants.gameMatrix[currentAnchorRow + shape[1, 0], currentAnchorColumn + shape[1, 1]] = 0;
+            tet_constants.gameMatrix[currentAnchorRow + shape[2, 0], currentAnchorColumn + shape[2, 1]] = 0;
+
+            currentAnchorColumn += 1; 
+
+            tet_constants.gameMatrix[currentAnchorRow, currentAnchorColumn] = 1;
+            tet_constants.gameMatrix[currentAnchorRow + shape[0, 0], currentAnchorColumn + shape[0, 1]] = 1;
+            tet_constants.gameMatrix[currentAnchorRow + shape[1, 0], currentAnchorColumn + shape[1, 1]] = 1;
+            tet_constants.gameMatrix[currentAnchorRow + shape[2, 0], currentAnchorColumn + shape[2, 1]] = 1;            
         }
 
-        
+        private void applyMoveToLeft(int[,] shape)
+        {
+        //    if ((currentAnchorColumn == 8 || currentAnchorColumn == 1) && toModify[0, 0] == "B" && toModify[1, 0] == "B" && toModify[2, 0] == "B")
+        //    {   //case for edge of screen
+        //        toModify[0, 0] = toModify[0, 1]; toModify[0, 1] = toModify[0, 2]; toModify[0, 2] = "B";
+        //        toModify[1, 0] = toModify[1, 1]; toModify[1, 1] = toModify[1, 2]; toModify[1, 2] = "B";
+        //        toModify[2, 0] = toModify[2, 1]; toModify[2, 1] = toModify[2, 2]; toModify[2, 2] = "B";
+
+        //        for (int row = currentAnchorRow - 1; row <= currentAnchorRow + 1; row++)
+        //            for (int column = currentAnchorColumn - 1; column <= currentAnchorColumn + 1; column++)
+        //                tet_constants.gameMatrix[row, column] = toModify[row - currentAnchorRow + 1, column - currentAnchorColumn + 1];
+
+        //        tet_constants.gameMatrix[currentAnchorRow - 1, currentAnchorColumn + 1] = "B";
+        //        tet_constants.gameMatrix[currentAnchorRow, currentAnchorColumn + 1] = "B";
+        //        tet_constants.gameMatrix[currentAnchorRow + 1, currentAnchorColumn + 1] = "B";
+
+        //        return;
+        //    }
+
+            if (currentAnchorColumn - 1 < 1) return;
+
+            tet_constants.gameMatrix[currentAnchorRow, currentAnchorColumn] = 0;
+            tet_constants.gameMatrix[currentAnchorRow + shape[0, 0], currentAnchorColumn + shape[0, 1]] = 0;
+            tet_constants.gameMatrix[currentAnchorRow + shape[1, 0], currentAnchorColumn + shape[1, 1]] = 0;
+            tet_constants.gameMatrix[currentAnchorRow + shape[2, 0], currentAnchorColumn + shape[2, 1]] = 0;
+
+            currentAnchorColumn -= 1;
+
+            tet_constants.gameMatrix[currentAnchorRow, currentAnchorColumn] = 1;
+            tet_constants.gameMatrix[currentAnchorRow + shape[0, 0], currentAnchorColumn + shape[0, 1]] = 1;
+            tet_constants.gameMatrix[currentAnchorRow + shape[1, 0], currentAnchorColumn + shape[1, 1]] = 1;
+            tet_constants.gameMatrix[currentAnchorRow + shape[2, 0], currentAnchorColumn + shape[2, 1]] = 1;    
+        }
+
+
+        internal bool moveCurrentShapeDown()
+        {
+            int[,] shape = new int[3, 4];
+            shape = getShape(currentShape, currentRotation);
+
+            bool isFinalMove = applyMoveDown(shape);
+
+            if (isFinalMove) { pushNewPiece(); }
+            return true;
+        }
+
+        private bool applyMoveDown(int[,] shape)
+        {
+            if (currentAnchorRow == 18) return true;
+
+            tet_constants.gameMatrix[currentAnchorRow, currentAnchorColumn] = 0;
+            tet_constants.gameMatrix[currentAnchorRow + shape[0, 0], currentAnchorColumn + shape[0, 1]] = 0;
+            tet_constants.gameMatrix[currentAnchorRow + shape[1, 0], currentAnchorColumn + shape[1, 1]] = 0;
+            tet_constants.gameMatrix[currentAnchorRow + shape[2, 0], currentAnchorColumn + shape[2, 1]] = 0;
+
+            if ((tet_constants.gameMatrix[currentAnchorRow + 1, currentAnchorColumn] == 1) ||
+                (tet_constants.gameMatrix[currentAnchorRow + 1 + shape[0, 0], currentAnchorColumn + shape[0, 1]] == 1) ||
+                (tet_constants.gameMatrix[currentAnchorRow + 1 + shape[1, 0], currentAnchorColumn + shape[1, 1]] == 1) ||
+                (tet_constants.gameMatrix[currentAnchorRow + 1 + shape[2, 0], currentAnchorColumn + shape[2, 1]] == 1))
+            {
+                tet_constants.gameMatrix[currentAnchorRow, currentAnchorColumn] = 1;
+                tet_constants.gameMatrix[currentAnchorRow + shape[0, 0], currentAnchorColumn + shape[0, 1]] = 1;
+                tet_constants.gameMatrix[currentAnchorRow + shape[1, 0], currentAnchorColumn + shape[1, 1]] = 1;
+                tet_constants.gameMatrix[currentAnchorRow + shape[2, 0], currentAnchorColumn + shape[2, 1]] = 1;
+                return true;
+            }            
+
+            currentAnchorRow += 1;
+
+            tet_constants.gameMatrix[currentAnchorRow, currentAnchorColumn] = 1;
+            tet_constants.gameMatrix[currentAnchorRow + shape[0, 0], currentAnchorColumn + shape[0, 1]] = 1;
+            tet_constants.gameMatrix[currentAnchorRow + shape[1, 0], currentAnchorColumn + shape[1, 1]] = 1;
+            tet_constants.gameMatrix[currentAnchorRow + shape[2, 0], currentAnchorColumn + shape[2, 1]] = 1; 
+
+            return false;
+        }        
 
         /// <summary>
         ///   *** 
@@ -168,16 +277,6 @@ namespace TetriSomething
                     Matrix[i, j] = Matrix[i, j - 1]; //bottom row 
                 } 
             } 
-        }
-
-        internal bool moveCurrentShapeToLeft()
-        {
-            throw new NotImplementedException();
-        }
-
-        internal bool moveCurrentShapeDown()
-        {
-            throw new NotImplementedException();
         }
     }
 }
