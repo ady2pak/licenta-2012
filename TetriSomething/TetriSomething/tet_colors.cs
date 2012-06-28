@@ -6,11 +6,7 @@ using System.Text;
 namespace TetriSomething
 {
     public class tet_colors
-    {
-        /// <summary>
-        /// this returns a path to a random color
-        /// </summary>
-        /// <returns>a string that is a path to a random color</returns>
+    {      
         public string getPieceColor(string pieceData)
         {
 
