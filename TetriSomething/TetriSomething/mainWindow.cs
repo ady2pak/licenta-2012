@@ -65,13 +65,13 @@ namespace TetriSomething
             try
             {
                 myBrush.Color = Color.White;
-                graphicsObj.FillRectangle(myBrush, new Rectangle(400, 20, 200, 80));
+                graphicsObj.FillRectangle(myBrush, new Rectangle(400, 90, 200, 80));
 
                 myBrush.Color = Color.Black;
-                graphicsObj.DrawString("Used shapes : " + blockLogic.usedShapesNr, new Font("Arial", 16), myBrush, new Point(400, 20));
-                graphicsObj.DrawString("Cleared lines : " + blockLogic.clearedLines, new Font("Arial", 16), myBrush, new Point(400, 40));
-                graphicsObj.DrawString("Score : " + blockLogic.myScore.getScore(), new Font("Arial", 16), myBrush, new Point(400, 60));
-                graphicsObj.DrawString("Multiplier : " + blockLogic.myScore.getScoreMultiplier(), new Font("Arial", 16), myBrush, new Point(400, 80));
+                graphicsObj.DrawString("Used shapes : " + blockLogic.usedShapesNr, new Font("Arial", 16), myBrush, new Point(400, 90));
+                graphicsObj.DrawString("Cleared lines : " + blockLogic.clearedLines, new Font("Arial", 16), myBrush, new Point(400, 110));
+                graphicsObj.DrawString("Score : " + blockLogic.myScore.getScore(), new Font("Arial", 16), myBrush, new Point(400, 130));
+                graphicsObj.DrawString("Multiplier : " + blockLogic.myScore.getScoreMultiplier(), new Font("Arial", 16), myBrush, new Point(400, 150));
             }
             catch (Exception ex)
             {
