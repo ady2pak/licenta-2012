@@ -8,13 +8,16 @@ namespace TetriSomething
 {
     public partial class mainWindow : Form
     {
+        const int _DOWN = 001;
+        const int _RIGHT = 002;
+        const int _LEFT = 003;
         const int WINHEIGHT = 780;
         const int WINWIDTH = 660; 
         
         tet_blocks blockLogic;
         char[] currentBlocks, futureBlocks = new char[10];
         
-        Random random = new Random();
+        tet_random random = new tet_random();
         tet_constants constants = new tet_constants();
         tet_colors colors = new tet_colors();
         tet_game TheGame = new tet_game();
@@ -31,7 +34,7 @@ namespace TetriSomething
         {
             this.KeyDown += new KeyEventHandler(tick);
             InitializeComponent();
-            blockLogic = new tet_blocks();
+            blockLogic = new tet_blocks(this);
             currentBlocks = blockLogic.generateNextBlocks();            
             futureBlocks = blockLogic.generateNextBlocks(); 
             graphicsObj1 = this.CreateGraphics();
@@ -55,7 +58,7 @@ namespace TetriSomething
                     {
                         graphicsObj.DrawImage(_png, new Rectangle(90 + column * 30, 90 + row * 30, 30, 30));
                     }
-                    catch (Exception ex)
+                    catch 
                     {
                         break;
                     }
@@ -73,7 +76,7 @@ namespace TetriSomething
                 graphicsObj.DrawString("Score : " + blockLogic.myScore.getScore(), new Font("Arial", 16), myBrush, new Point(400, 130));
                 graphicsObj.DrawString("Multiplier : " + blockLogic.myScore.getScoreMultiplier(), new Font("Arial", 16), myBrush, new Point(400, 150));
             }
-            catch (Exception ex)
+            catch
             {
                 return;
             }
@@ -90,43 +93,67 @@ namespace TetriSomething
             graphicsObj1.DrawString("Press ENTER to play", new Font("Arial", 22), myBrush, new Point(10, WINHEIGHT / 2));
         }
 
+        public void appendMatrixToDebug()
+        {
+            debug.Text = "";
+            debug.Clear();
+            for (int row = 0 ; row < 20 ; row++) {
+                for (int column = 0; column < 10; column++)
+                    debug.AppendText(tet_constants.gameMatrix[row, column] + " ");
+                debug.AppendText(Environment.NewLine);
+                }
+
+        }
+
         void tick(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Up)
             {
                 if (isGameStarted)
-                {                   
-                    bool isValid = blockLogic.rotateCurrentShape();                    
-                    if (isValid) redrawMatrix(graphicsObj1);
+                {
+                    //TheGame.autodrop.Enabled = false;
+                    bool isValid = blockLogic.rotateCurrentShape();
+                    appendMatrixToDebug();
+                    //TheGame.autodrop.Enabled = true;
+                    if (isValid) { } // redrawMatrix(graphicsObj1);
                 }
             }
             if (e.KeyCode == Keys.Left)
             {
                 if (isGameStarted)
-                {                    
-                    bool isValid = blockLogic.moveCurrentShape(-1);                   
-                    if (isValid) redrawMatrix(graphicsObj1);
+                {
+                    //TheGame.autodrop.Enabled = false;
+                    bool isValid = blockLogic.moveCurrentShape(-1);
+                    appendMatrixToDebug();
+                    //TheGame.autodrop.Enabled = true;
+                    if (isValid) { } // redrawMatrix(graphicsObj1);
                 }
             }
             if (e.KeyCode == Keys.Right)
             {
                 if (isGameStarted)
-                {                   
-                    bool isValid = blockLogic.moveCurrentShape(1);                    
-                    if (isValid) redrawMatrix(graphicsObj1);
+                {
+                    //TheGame.autodrop.Enabled = false;
+                    bool isValid = blockLogic.moveCurrentShape(1);
+                    appendMatrixToDebug();
+                    //TheGame.autodrop.Enabled = true;
+                    if (isValid) { } // redrawMatrix(graphicsObj1);
                 }
             }
             if (e.KeyCode == Keys.Down)
             {
                 if (isGameStarted)
-                {                   
-                    bool isValid = blockLogic.snapItDown();                    
-                    if (isValid) redrawMatrix(graphicsObj1);
+                {
+                    TheGame.autodrop.Enabled = false;
+                    bool isValid = blockLogic.snapItDown();
+                    appendMatrixToDebug();
+                    TheGame.autodrop.Enabled = true;
+                    if (isValid) { } //redrawMatrix(graphicsObj1);
                     else
                     {
                         isGameStarted = false;
                         TheGame.autodrop.Enabled = false;
-                        
+
                         redrawMatrix(graphicsObj1);
                         graphicsObj1.DrawString("Game over, press ENTER to play again", new Font("Arial", 22), myBrush, new Point(10, WINHEIGHT / 2));
 
@@ -179,6 +206,99 @@ namespace TetriSomething
         public void drawString()
         {
             graphicsObj2.DrawString("Game over, press ENTER to play again", new Font("Arial", 22), myBrush, new Point(10, WINHEIGHT / 2));
+        }
+
+        private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            aboutWindow about = new aboutWindow();
+            about.Show();
+        }
+
+        public void drawMoveDown(Graphics graphics, int[,] shape, int currentAnchorRow, int currentAnchorColumn, char currentShape)
+        {
+            try
+            {
+                Image image = Image.FromFile(tet_colors.WHITE);
+                graphics.DrawImage(image, new Rectangle(90 + currentAnchorColumn * 30, 90 + (currentAnchorRow - 1) * 30, 30, 30));
+                graphics.DrawImage(image, new Rectangle(90 + (currentAnchorColumn + shape[0, 1]) * 30, 90 + (currentAnchorRow - 1 + shape[0, 0]) * 30, 30, 30));
+                graphics.DrawImage(image, new Rectangle(90 + (currentAnchorColumn + shape[1, 1]) * 30, 90 + (currentAnchorRow - 1 + shape[1, 0]) * 30, 30, 30));
+                graphics.DrawImage(image, new Rectangle(90 + (currentAnchorColumn + shape[2, 1]) * 30, 90 + (currentAnchorRow - 1 + shape[2, 0]) * 30, 30, 30));
+
+                image = Image.FromFile(colors.getPieceColor(currentShape));
+                graphics.DrawImage(image, new Rectangle(90 + currentAnchorColumn * 30, 90 + currentAnchorRow * 30, 30, 30));
+                graphics.DrawImage(image, new Rectangle(90 + (currentAnchorColumn + shape[0, 1]) * 30, 90 + (currentAnchorRow + shape[0, 0]) * 30, 30, 30));
+                graphics.DrawImage(image, new Rectangle(90 + (currentAnchorColumn + shape[1, 1]) * 30, 90 + (currentAnchorRow + shape[1, 0]) * 30, 30, 30));
+                graphics.DrawImage(image, new Rectangle(90 + (currentAnchorColumn + shape[2, 1]) * 30, 90 + (currentAnchorRow + shape[2, 0]) * 30, 30, 30));
+            }
+            catch
+            {
+                redrawMatrix(graphicsObj2);
+            }
+        }
+
+        public void drawMoveRight(Graphics graphics, int[,] shape, int currentAnchorRow, int currentAnchorColumn, char currentShape)
+        {
+            try
+            {
+                Image image = Image.FromFile(tet_colors.WHITE);
+                graphics.DrawImage(image, new Rectangle(90 + (currentAnchorColumn - 1) * 30, 90 + currentAnchorRow * 30, 30, 30));
+                graphics.DrawImage(image, new Rectangle(90 + (currentAnchorColumn - 1 + shape[0, 1]) * 30, 90 + (currentAnchorRow + shape[0, 0]) * 30, 30, 30));
+                graphics.DrawImage(image, new Rectangle(90 + (currentAnchorColumn - 1 + shape[1, 1]) * 30, 90 + (currentAnchorRow + shape[1, 0]) * 30, 30, 30));
+                graphics.DrawImage(image, new Rectangle(90 + (currentAnchorColumn - 1 + shape[2, 1]) * 30, 90 + (currentAnchorRow + shape[2, 0]) * 30, 30, 30));
+
+                image = Image.FromFile(colors.getPieceColor(currentShape));
+                graphics.DrawImage(image, new Rectangle(90 + currentAnchorColumn * 30, 90 + currentAnchorRow * 30, 30, 30));
+                graphics.DrawImage(image, new Rectangle(90 + (currentAnchorColumn + shape[0, 1]) * 30, 90 + (currentAnchorRow + shape[0, 0]) * 30, 30, 30));
+                graphics.DrawImage(image, new Rectangle(90 + (currentAnchorColumn + shape[1, 1]) * 30, 90 + (currentAnchorRow + shape[1, 0]) * 30, 30, 30));
+                graphics.DrawImage(image, new Rectangle(90 + (currentAnchorColumn + shape[2, 1]) * 30, 90 + (currentAnchorRow + shape[2, 0]) * 30, 30, 30));
+            }
+            catch
+            {
+                redrawMatrix(graphicsObj2);
+            }
+        }
+
+        public void drawMoveLeft(Graphics graphics, int[,] shape, int currentAnchorRow, int currentAnchorColumn, char currentShape)
+        {
+            try
+            {
+                Image image = Image.FromFile(tet_colors.WHITE);
+                graphics.DrawImage(image, new Rectangle(90 + (currentAnchorColumn + 1) * 30, 90 + currentAnchorRow * 30, 30, 30));
+                graphics.DrawImage(image, new Rectangle(90 + (currentAnchorColumn + 1 + shape[0, 1]) * 30, 90 + (currentAnchorRow + shape[0, 0]) * 30, 30, 30));
+                graphics.DrawImage(image, new Rectangle(90 + (currentAnchorColumn + 1 + shape[1, 1]) * 30, 90 + (currentAnchorRow + shape[1, 0]) * 30, 30, 30));
+                graphics.DrawImage(image, new Rectangle(90 + (currentAnchorColumn + 1 + shape[2, 1]) * 30, 90 + (currentAnchorRow + shape[2, 0]) * 30, 30, 30));
+
+                image = Image.FromFile(colors.getPieceColor(currentShape));
+                graphics.DrawImage(image, new Rectangle(90 + currentAnchorColumn * 30, 90 + currentAnchorRow * 30, 30, 30));
+                graphics.DrawImage(image, new Rectangle(90 + (currentAnchorColumn + shape[0, 1]) * 30, 90 + (currentAnchorRow + shape[0, 0]) * 30, 30, 30));
+                graphics.DrawImage(image, new Rectangle(90 + (currentAnchorColumn + shape[1, 1]) * 30, 90 + (currentAnchorRow + shape[1, 0]) * 30, 30, 30));
+                graphics.DrawImage(image, new Rectangle(90 + (currentAnchorColumn + shape[2, 1]) * 30, 90 + (currentAnchorRow + shape[2, 0]) * 30, 30, 30));
+            }
+            catch
+            {
+                redrawMatrix(graphicsObj2);
+            }
+        }
+
+        public void drawRotation(Graphics graphics, int[,] oldPosition, int[,] newPosition, int currentAnchorRow, int currentAnchorColumn, char currentShape)
+        {
+            try
+            {
+                Image image = Image.FromFile(tet_colors.WHITE);
+                graphics.DrawImage(image, new Rectangle(90 + (currentAnchorColumn + oldPosition[0, 1]) * 30, 90 + (currentAnchorRow + oldPosition[0, 0]) * 30, 30, 30));
+                graphics.DrawImage(image, new Rectangle(90 + (currentAnchorColumn + oldPosition[1, 1]) * 30, 90 + (currentAnchorRow + oldPosition[1, 0]) * 30, 30, 30));
+                graphics.DrawImage(image, new Rectangle(90 + (currentAnchorColumn + oldPosition[2, 1]) * 30, 90 + (currentAnchorRow + oldPosition[2, 0]) * 30, 30, 30));
+
+                image = Image.FromFile(colors.getPieceColor(currentShape));
+                graphics.DrawImage(image, new Rectangle(90 + currentAnchorColumn * 30, 90 + currentAnchorRow * 30, 30, 30));
+                graphics.DrawImage(image, new Rectangle(90 + (currentAnchorColumn + newPosition[0, 1]) * 30, 90 + (currentAnchorRow + newPosition[0, 0]) * 30, 30, 30));
+                graphics.DrawImage(image, new Rectangle(90 + (currentAnchorColumn + newPosition[1, 1]) * 30, 90 + (currentAnchorRow + newPosition[1, 0]) * 30, 30, 30));
+                graphics.DrawImage(image, new Rectangle(90 + (currentAnchorColumn + newPosition[2, 1]) * 30, 90 + (currentAnchorRow + newPosition[2, 0]) * 30, 30, 30));
+            }
+            catch
+            {
+                redrawMatrix(graphicsObj2);
+            }
         }
     }
 }

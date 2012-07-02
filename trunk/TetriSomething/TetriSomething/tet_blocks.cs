@@ -10,8 +10,8 @@ namespace TetriSomething
     public class tet_blocks
     {        
         
-        char[] shapes = { 'i', 'j', 'l', 'o', 's', 'z', 't' };  
-        Random random = new Random();
+        char[] shapes = { 'i', 'j', 'l', 'o', 's', 'z', 't' };
+        tet_random random = new tet_random();
         tet_constants game = new tet_constants();
         tet_shapes myShapes = new tet_shapes();
         tet_colors colors = new tet_colors();
@@ -23,6 +23,12 @@ namespace TetriSomething
         public int usedShapesNr = -1;
         public int clearedLines = 0;
         char [] currentBlocks, futureBlocks = new char[10];
+        private mainWindow mainWindow;
+
+        public tet_blocks(mainWindow mainWindow)
+        {            
+            this.mainWindow = mainWindow;
+        }
 
         int[,] getShape(char shape, int rotation)
         {
@@ -74,7 +80,7 @@ namespace TetriSomething
             int rnd;
             for (int i = 0; i < 10; i++)
             {
-                rnd = random.Next(7);
+                rnd = random.getRandomInt(7);
                 _blocks[i] = shapes[rnd];
             }
 
@@ -84,6 +90,30 @@ namespace TetriSomething
 
         public bool pushNewPiece()
         {
+            tet_random random = new tet_random();
+            int highestBOnus = highestRowWithPieces(tet_constants.gameMatrix);
+            if (highestBOnus != -1)//being and empty row
+            {
+                if (random.getRandomInt(tet_constants.CHANCE_POWERUP_STAR) == tet_constants.POWER_UP_OCCURED)
+                {
+                    //this piece's powerup;
+                    int whatColumn = random.getRandomInt(10);
+                    int whatRow = random.getRandomInt(20-highestBOnus);
+                    //try
+                    //{
+                        tet_constants.gameMatrix[19 - whatRow, whatColumn] = 1;
+                        tet_constants.colorMatrix[19 - whatRow, whatColumn] = 'p';
+
+                        Image image = Image.FromFile(tet_colors.STAR);
+                        mainWindow.graphicsObj2.DrawImage(image, new Rectangle(90 + whatColumn * 30, 90 + (19 - whatRow) * 30, 30, 30));
+                    //}
+                    //catch
+                    //{
+                    //    //quick, dirty, slutty, filthy, disease ridden fix.
+                    //}
+                }
+            }
+
             usedShapesNr++;
 
             if (usedShapesNr != 0 && usedShapesNr % 10 == 0)
@@ -170,6 +200,8 @@ namespace TetriSomething
 
             setShapeInGameMatrix(newPosition, 1);
             setShapeInColorMatrix(newPosition, currentShape);
+
+            mainWindow.drawRotation(mainWindow.graphicsObj1, oldPosition, newPosition, currentAnchorRow, currentAnchorColumn, currentShape);
 
             return true;
         }
@@ -295,6 +327,8 @@ namespace TetriSomething
 
             setShapeInGameMatrix(shape, 1);
             setShapeInColorMatrix(shape, currentShape);
+
+            mainWindow.drawMoveRight(mainWindow.graphicsObj1, shape, currentAnchorRow, currentAnchorColumn, currentShape);
         }        
 
         private void applyMoveToLeft(int[,] shape)
@@ -306,11 +340,14 @@ namespace TetriSomething
 
             setShapeInGameMatrix(shape, 1);
             setShapeInColorMatrix(shape, currentShape);
+
+            mainWindow.drawMoveLeft(mainWindow.graphicsObj1, shape, currentAnchorRow, currentAnchorColumn, currentShape);
         }
 
         internal bool snapItDown()
         {
             int[,] shape = new int[3, 4];
+            myScore.addInstaDropBonus(20-currentAnchorRow);
             shape = getShape(currentShape, currentRotation);
             bool isFinalMove = applyMoveDown(shape);
 
@@ -340,6 +377,7 @@ namespace TetriSomething
         internal bool moveCurrentShapeDown()
         {
             int[,] shape = new int[3, 4];
+            int[] removedPs = new int[10];
             shape = getShape(currentShape, currentRotation);
 
             bool isFinalMove = applyMoveDown(shape);
@@ -350,19 +388,28 @@ namespace TetriSomething
                 int iCanStillRemove = removeOrNotAndWhat(tet_constants.gameMatrix);
                 while (iCanStillRemove != -1)
                 {
-                    doTheRemove(tet_constants.gameMatrix, iCanStillRemove);
+                    removedPs = doTheRemove(tet_constants.gameMatrix, iCanStillRemove);
+                    for (int i = 0; i < 10; i++)
+                    {
+                        if (removedPs[i] == 'p')
+                            myScore.addStarBonus();
+                    }
                     clearedLinesThisDrop++;
                     iCanStillRemove = removeOrNotAndWhat(tet_constants.gameMatrix);                   
                     
-                }                
+                }
+
+                
 
                 if (clearedLinesThisDrop != 0)
                 {
                     myScore.addScoringMove(clearedLinesThisDrop);
-                    clearedLines += clearedLinesThisDrop;
+                    clearedLines += clearedLinesThisDrop;                   
                 }
                 else myScore.addNonScoringMove();
+                //mainWindow.redrawMatrix(mainWindow.graphicsObj1);
                 if (!pushNewPiece()) return false; }
+            mainWindow.redrawMatrix(mainWindow.graphicsObj2);
             return true;
         }
 
@@ -391,7 +438,9 @@ namespace TetriSomething
             currentAnchorRow += 1;
 
             setShapeInGameMatrix(shape, 1);
-            setShapeInColorMatrix(shape, currentShape);            
+            setShapeInColorMatrix(shape, currentShape);
+
+            mainWindow.drawMoveDown(mainWindow.graphicsObj1, shape, currentAnchorRow, currentAnchorColumn, currentShape);
 
             return false;
         }
@@ -430,14 +479,44 @@ namespace TetriSomething
             return lineToRemove; 
         }
 
-        private void doTheRemove(int[,] Matrix, int lineToRemove)
+        private int[] doTheRemove(int[,] Matrix, int lineToRemove)
         {
+            int[] returnVec = new int[10];
+            for (int i = 0; i < 10; i++)
+            { 
+                returnVec[i] = Matrix[lineToRemove, i]; 
+            }
+
             for (int i = lineToRemove; i > 0; i--)
                 for (int j = 0; j < 10; j++)
                 {
+                    //if (tet_constants.colorMatrix[i, j] == 'p')
+                    //{
+                    //    myScore.addStarBonus();
+                    //}
                     tet_constants.colorMatrix[i, j] = tet_constants.colorMatrix[i - 1, j];
                     Matrix[i, j] = Matrix[i - 1, j];
                 }
-        }    
+            return returnVec;
+        }
+
+        private int highestRowWithPieces(int[,] Matrix)
+        {
+            int returnRow = -1;
+            for (int i = 4; i < 20; i++)
+            {
+                for (int j = 0; j < 10; j++)
+                {
+                    if (Matrix[i, j] == 1)
+                    {
+                        return i;
+                    }
+                }
+            }
+
+            return returnRow;
+        }
+   
+
     }
 }
