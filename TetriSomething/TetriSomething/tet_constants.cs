@@ -7,7 +7,7 @@ namespace TetriSomething
 {
     public class tet_constants
     {
-        public const int CHANCE_POWERUP_STAR = 4; //as in 1 of X
+        public const int CHANCE_POWERUP_STAR = 10; //as in 1 of X
         public const int DROP_TIME = 1000; // drop time in miliseconds
         public const int POWER_UP_OCCURED = 0; //when the random gen hits this a powerup occurs
 
