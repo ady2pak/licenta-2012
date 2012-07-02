@@ -142,6 +142,8 @@ namespace TetriSomething
             tet_constants.colorMatrix[currentAnchorRow + shape[1, 0], currentAnchorColumn + shape[1, 1]] = currentShape;
             tet_constants.colorMatrix[currentAnchorRow + shape[2, 0], currentAnchorColumn + shape[2, 1]] = currentShape;
 
+            mainWindow.drawNewPiece(mainWindow.graphicsObj1, shape, currentShape, currentAnchorRow, currentAnchorColumn);
+
             if (gameOver) return false;
 
             return true;
@@ -369,6 +371,9 @@ namespace TetriSomething
                 clearedLines += clearedLinesThisDrop;
             }
             else myScore.addNonScoringMove();
+
+            mainWindow.redrawMatrix(mainWindow.graphicsObj1);
+
             if (!pushNewPiece()) return false;
 
             return true;
@@ -405,11 +410,13 @@ namespace TetriSomething
                 {
                     myScore.addScoringMove(clearedLinesThisDrop);
                     clearedLines += clearedLinesThisDrop;                   
-                }
+                }                
                 else myScore.addNonScoringMove();
-                //mainWindow.redrawMatrix(mainWindow.graphicsObj1);
+
+                mainWindow.redrawMatrix(mainWindow.graphicsObj1);
+
                 if (!pushNewPiece()) return false; }
-            mainWindow.redrawMatrix(mainWindow.graphicsObj2);
+            
             return true;
         }
 

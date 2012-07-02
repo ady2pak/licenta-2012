@@ -8,7 +8,7 @@ namespace TetriSomething
 {
     class tet_game
     {
-
+        
         //static private bool gameOver = false;
         //static private int gameState;
         mainWindow mainWindow;
@@ -38,6 +38,8 @@ namespace TetriSomething
         {            
             bool isValid = blockLogic.moveCurrentShapeDown();
             //mainWindow.appendMatrixToDebug();
+            if (mainWindow.isConnectedAsClient) mainWindow.client.sendMsgToClient();
+            if (mainWindow.isConnectedAsServer) mainWindow.server.sendMsgToClient();
             if (isValid) { }//mainWindow.redrawMatrix(mainWindow.graphicsObj2);
             else
             {

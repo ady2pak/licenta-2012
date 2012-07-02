@@ -12,8 +12,11 @@ namespace TetriSomething
         const int _RIGHT = 002;
         const int _LEFT = 003;
         const int WINHEIGHT = 780;
-        const int WINWIDTH = 660; 
-        
+        const int WINWIDTH = 660;
+
+        public bool isConnectedAsClient = false;
+        public bool isConnectedAsServer = false; 
+
         tet_blocks blockLogic;
         char[] currentBlocks, futureBlocks = new char[10];
         
@@ -21,6 +24,8 @@ namespace TetriSomething
         tet_constants constants = new tet_constants();
         tet_colors colors = new tet_colors();
         tet_game TheGame = new tet_game();
+        public tet_network_c client;
+        public tet_network_s server;
 
         public bool isGameStarted = false;
 
@@ -65,21 +70,58 @@ namespace TetriSomething
                 }
 
 
-            try
-            {
-                myBrush.Color = Color.White;
-                graphicsObj.FillRectangle(myBrush, new Rectangle(400, 90, 200, 80));
+            //try
+            //{
+            //    myBrush.Color = Color.White;
+            //    graphicsObj.FillRectangle(myBrush, new Rectangle(400, 90, 200, 80));
 
-                myBrush.Color = Color.Black;
-                graphicsObj.DrawString("Used shapes : " + blockLogic.usedShapesNr, new Font("Arial", 16), myBrush, new Point(400, 90));
-                graphicsObj.DrawString("Cleared lines : " + blockLogic.clearedLines, new Font("Arial", 16), myBrush, new Point(400, 110));
-                graphicsObj.DrawString("Score : " + blockLogic.myScore.getScore(), new Font("Arial", 16), myBrush, new Point(400, 130));
-                graphicsObj.DrawString("Multiplier : " + blockLogic.myScore.getScoreMultiplier(), new Font("Arial", 16), myBrush, new Point(400, 150));
-            }
-            catch
-            {
-                return;
-            }
+            //    myBrush.Color = Color.Black;
+            //    graphicsObj.DrawString("Used shapes : " + blockLogic.usedShapesNr, new Font("Arial", 16), myBrush, new Point(400, 90));
+            //    graphicsObj.DrawString("Cleared lines : " + blockLogic.clearedLines, new Font("Arial", 16), myBrush, new Point(400, 110));
+            //    graphicsObj.DrawString("Score : " + blockLogic.myScore.getScore(), new Font("Arial", 16), myBrush, new Point(400, 130));
+            //    graphicsObj.DrawString("Multiplier : " + blockLogic.myScore.getScoreMultiplier(), new Font("Arial", 16), myBrush, new Point(400, 150));
+            //}
+            //catch
+            //{
+            //    return;
+            //}
+        }
+
+        public void drawHisMatrix(System.Drawing.Graphics graphicsObj, char[,] hisMatrix)
+        {
+            tet_colors pieceColor = new tet_colors();
+            Image _png;
+
+            for (int row = 0; row < 20; row++)
+                for (int column = 0; column < 10; column++)
+                {
+                    _png = Image.FromFile(colors.getPieceColor(hisMatrix[row, column]));
+                    try
+                    {
+                        graphicsObj.DrawImage(_png, new Rectangle(490 + column * 30, 90 + row * 30, 30, 30));
+                    }
+                    catch
+                    {
+                        break;
+                    }
+                }
+
+
+            //try
+            //{
+            //    myBrush.Color = Color.White;
+            //    graphicsObj.FillRectangle(myBrush, new Rectangle(400, 90, 200, 80));
+
+            //    myBrush.Color = Color.Black;
+            //    graphicsObj.DrawString("Used shapes : " + blockLogic.usedShapesNr, new Font("Arial", 16), myBrush, new Point(400, 90));
+            //    graphicsObj.DrawString("Cleared lines : " + blockLogic.clearedLines, new Font("Arial", 16), myBrush, new Point(400, 110));
+            //    graphicsObj.DrawString("Score : " + blockLogic.myScore.getScore(), new Font("Arial", 16), myBrush, new Point(400, 130));
+            //    graphicsObj.DrawString("Multiplier : " + blockLogic.myScore.getScoreMultiplier(), new Font("Arial", 16), myBrush, new Point(400, 150));
+            //}
+            //catch
+            //{
+            //    return;
+            //}
         }
       
         private void Form1_Shown(object sender, EventArgs e)
@@ -91,19 +133,7 @@ namespace TetriSomething
             graphicsObj1.DrawImage(background, new Rectangle(0, 0, WINWIDTH, WINHEIGHT));
 
             graphicsObj1.DrawString("Press ENTER to play", new Font("Arial", 22), myBrush, new Point(10, WINHEIGHT / 2));
-        }
-
-        public void appendMatrixToDebug()
-        {
-            debug.Text = "";
-            debug.Clear();
-            for (int row = 0 ; row < 20 ; row++) {
-                for (int column = 0; column < 10; column++)
-                    debug.AppendText(tet_constants.gameMatrix[row, column] + " ");
-                debug.AppendText(Environment.NewLine);
-                }
-
-        }
+        }       
 
         void tick(object sender, KeyEventArgs e)
         {
@@ -113,7 +143,9 @@ namespace TetriSomething
                 {
                     //TheGame.autodrop.Enabled = false;
                     bool isValid = blockLogic.rotateCurrentShape();
-                    appendMatrixToDebug();
+                    //appendMatrixToDebug();
+                    if (isConnectedAsClient) client.sendMsgToClient();
+                    if (isConnectedAsServer) server.sendMsgToClient();
                     //TheGame.autodrop.Enabled = true;
                     if (isValid) { } // redrawMatrix(graphicsObj1);
                 }
@@ -124,7 +156,9 @@ namespace TetriSomething
                 {
                     //TheGame.autodrop.Enabled = false;
                     bool isValid = blockLogic.moveCurrentShape(-1);
-                    appendMatrixToDebug();
+                    //appendMatrixToDebug();
+                    if (isConnectedAsClient) client.sendMsgToClient();
+                    if (isConnectedAsServer) server.sendMsgToClient();
                     //TheGame.autodrop.Enabled = true;
                     if (isValid) { } // redrawMatrix(graphicsObj1);
                 }
@@ -135,7 +169,9 @@ namespace TetriSomething
                 {
                     //TheGame.autodrop.Enabled = false;
                     bool isValid = blockLogic.moveCurrentShape(1);
-                    appendMatrixToDebug();
+                    //appendMatrixToDebug();
+                    if (isConnectedAsClient) client.sendMsgToClient();
+                    if (isConnectedAsServer) server.sendMsgToClient();
                     //TheGame.autodrop.Enabled = true;
                     if (isValid) { } // redrawMatrix(graphicsObj1);
                 }
@@ -146,7 +182,9 @@ namespace TetriSomething
                 {
                     TheGame.autodrop.Enabled = false;
                     bool isValid = blockLogic.snapItDown();
-                    appendMatrixToDebug();
+                    //appendMatrixToDebug();
+                    if (isConnectedAsClient) client.sendMsgToClient();
+                    if (isConnectedAsServer) server.sendMsgToClient();
                     TheGame.autodrop.Enabled = true;
                     if (isValid) { } //redrawMatrix(graphicsObj1);
                     else
@@ -170,6 +208,16 @@ namespace TetriSomething
             {
                 TheGame.autodrop.Enabled = false;
                 reloadGame();
+            }
+            if (e.KeyCode == Keys.Q)
+            {
+                server = new tet_network_s(this);
+                isConnectedAsServer = true;
+            }
+            if (e.KeyCode == Keys.W)
+            {
+                client = new tet_network_c(this);
+                isConnectedAsClient = true;
             }
             if (e.KeyCode == Keys.Escape)
                 Application.Exit();
@@ -299,6 +347,15 @@ namespace TetriSomething
             {
                 redrawMatrix(graphicsObj2);
             }
+        }
+
+        public void drawNewPiece(Graphics graphics, int[,] shape, char currentShape, int currentAnchorRow, int currentAnchorColumn)
+        {
+            Image image = Image.FromFile(colors.getPieceColor(currentShape));
+            graphics.DrawImage(image, new Rectangle(90 + currentAnchorColumn * 30, 90 + currentAnchorRow * 30, 30, 30));
+            graphics.DrawImage(image, new Rectangle(90 + (currentAnchorColumn + shape[0, 1]) * 30, 90 + (currentAnchorRow + shape[0, 0]) * 30, 30, 30));
+            graphics.DrawImage(image, new Rectangle(90 + (currentAnchorColumn + shape[1, 1]) * 30, 90 + (currentAnchorRow + shape[1, 0]) * 30, 30, 30));
+            graphics.DrawImage(image, new Rectangle(90 + (currentAnchorColumn + shape[2, 1]) * 30, 90 + (currentAnchorRow + shape[2, 0]) * 30, 30, 30));
         }
     }
 }
