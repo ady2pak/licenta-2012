@@ -35,7 +35,9 @@ namespace TetriSomething
             if (m_clientSocket.Connected)
             {
                 //clientMW._connected = true;
+                mainWindow.reloadGame();
                 WaitForData();
+
             }
         }
 

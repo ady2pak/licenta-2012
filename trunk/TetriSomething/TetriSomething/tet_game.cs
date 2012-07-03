@@ -36,7 +36,7 @@ namespace TetriSomething
         /// </summary>
         void autodrop_initiated(object sender, ElapsedEventArgs e)
         {            
-            bool isValid = blockLogic.moveCurrentShapeDown();
+            bool isValid = blockLogic.moveCurrentShapeDown("STEP");
             //mainWindow.appendMatrixToDebug();
             if (mainWindow.isConnectedAsClient) mainWindow.client.sendMsgToClient();
             if (mainWindow.isConnectedAsServer) mainWindow.server.sendMsgToClient();
@@ -45,7 +45,7 @@ namespace TetriSomething
             {
                 mainWindow.isGameStarted = false;
                 autodrop.Enabled = false;
-                mainWindow.redrawMatrix(mainWindow.graphicsObj2);
+                mainWindow.drawMyMatrix(mainWindow.graphicsObj2);
                 mainWindow.drawString();
 
             }            

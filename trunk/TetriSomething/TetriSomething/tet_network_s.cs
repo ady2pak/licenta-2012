@@ -73,6 +73,8 @@ namespace TetriSomething
                 ++m_clientCount;
 
                 m_socListener.BeginAccept(new AsyncCallback(OnClientConnect), null);
+
+                mainWindow.reloadGame();
             }
             catch (ObjectDisposedException)
             {
