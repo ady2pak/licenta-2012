@@ -22,7 +22,10 @@ namespace TetriSomething
         {
             for (int row = 0; row < 20; row++)
                 for (int column = 0; column < 10; column++)
+                {
                     tet_constants.colorMatrix[row, column] = 'w';
+                    tet_constants.hisColorMatrix[row, column] = 'w';
+                }
         }
 
         public string getPieceColor(char pieceData)

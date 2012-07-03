@@ -8,8 +8,8 @@ namespace TetriSomething
     public class tet_constants
     {
         public const int CHANCE_POWERUP_STAR = 10; //as in 1 of X
-        public const int DROP_TIME = 1000; // drop time in miliseconds
-        public const int POWER_UP_OCCURED = 0; //when the random gen hits this a powerup occurs
+        public const int DROP_TIME = 1000; // drop time in milliseconds
+        public const int POWER_UP_OCCURED = 0; //when the random gen hits this a power up occurs
 
         public const int STATE_TITLE =    00001; // a set of constants to be used by the game
         public const int STATE_PLAY =     00002;
@@ -24,6 +24,7 @@ namespace TetriSomething
 
         public static int[,] gameMatrix = new int[20, 10];
         public static char[,] colorMatrix = new char[20, 10];
+        public static char[,] hisColorMatrix = new char[20, 10];
         public static int[,] nextPieceMatrix = new int[3, 4];
 
         /// <summary>

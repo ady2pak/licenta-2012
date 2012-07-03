@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Drawing;
-using System.Windows.Forms;
+﻿using System.Drawing;
 
 namespace TetriSomething
 {
@@ -20,7 +15,7 @@ namespace TetriSomething
         int currentRotation;
         int currentAnchorRow;
         int currentAnchorColumn;        
-        public int usedShapesNr = -1;
+        public int usedShapesNr = 0;
         public int clearedLines = 0;
         char [] currentBlocks, futureBlocks = new char[10];
         private mainWindow mainWindow;
@@ -105,7 +100,7 @@ namespace TetriSomething
                         tet_constants.colorMatrix[19 - whatRow, whatColumn] = 'p';
 
                         Image image = Image.FromFile(tet_colors.STAR);
-                        mainWindow.graphicsObj2.DrawImage(image, new Rectangle(90 + whatColumn * 30, 90 + (19 - whatRow) * 30, 30, 30));
+                        mainWindow.graphicsObj2.DrawImage(image, new Rectangle(260 + whatColumn * 30, 100 + (19 - whatRow) * 30, 30, 30));
                     //}
                     //catch
                     //{
@@ -114,7 +109,7 @@ namespace TetriSomething
                 }
             }
 
-            usedShapesNr++;
+            //usedShapesNr++;
 
             if (usedShapesNr != 0 && usedShapesNr % 10 == 0)
             {
@@ -149,6 +144,77 @@ namespace TetriSomething
             return true;
         }
 
+        public bool rotateCurrentShape()
+        {
+            while (currentAnchorRow == 0) moveCurrentShapeDown("STEP");
+
+            bool wasSuccesfull = rotateFromX(currentRotation);
+            return wasSuccesfull;
+        }
+
+        public bool moveCurrentShape(int where)
+        {
+            int[,] shape = new int[3, 4];
+            shape = getShape(currentShape, currentRotation);
+
+            if (!isInBounds(where, shape)) return false;
+            if (!icanMoveThere(tet_constants.gameMatrix, shape, where)) return false;
+
+            if (where == 1) applyMoveToRight(shape);
+            else applyMoveToLeft(shape);
+
+            return true;
+        }
+
+        internal bool moveCurrentShapeDown(string type)
+        {
+            int[,] shape = new int[3, 4];
+            int[] removedPs = new int[10];
+            bool isFinalMove = false;
+            shape = getShape(currentShape, currentRotation);
+            
+            if (type == "SNAP")
+                while (!isFinalMove) isFinalMove = applyMoveDown(shape);
+            else isFinalMove = applyMoveDown(shape);
+
+            if (isFinalMove)
+            {
+                int clearedLinesThisDrop = 0;
+                int iCanStillRemove = removeOrNotAndWhat(tet_constants.gameMatrix);
+                while (iCanStillRemove != -1)
+                {
+                    removedPs = doTheRemove(tet_constants.gameMatrix, iCanStillRemove);
+                    for (int i = 0; i < 10; i++)
+                    {
+                        if (removedPs[i] == 'p')
+                            myScore.addStarBonus();
+                    }
+                    clearedLinesThisDrop++;
+                    iCanStillRemove = removeOrNotAndWhat(tet_constants.gameMatrix);
+
+                }
+
+
+
+                if (clearedLinesThisDrop != 0)
+                {
+                    myScore.addScoringMove(clearedLinesThisDrop);
+                    clearedLines += clearedLinesThisDrop;
+                }
+                else myScore.addNonScoringMove();
+
+                usedShapesNr++;
+
+                mainWindow.drawMyMatrix(mainWindow.graphicsObj1);
+
+                mainWindow.drawMyScore(mainWindow.graphicsObj1);                
+
+                if (!pushNewPiece()) return false;
+            }
+
+            return true;
+        }       
+
         private bool isItPossible(int[,] shape)
         {
             if (tet_constants.gameMatrix[currentAnchorRow, currentAnchorColumn] == 1) return true;
@@ -157,13 +223,7 @@ namespace TetriSomething
             if (tet_constants.gameMatrix[currentAnchorRow + shape[2, 0], currentAnchorColumn + shape[2, 1]] == 1) return true;
 
             return false;
-        }       
-
-        public bool rotateCurrentShape()
-        {
-            bool wasSuccesfull = rotateFromX(currentRotation);
-            return wasSuccesfull;
-        }
+        }               
 
         private bool rotateFromX(int x)
         {
@@ -181,7 +241,7 @@ namespace TetriSomething
 
         }        
  
-        bool applyRotation(char shape, int rotation)
+        private bool applyRotation(char shape, int rotation)
         {
             if (currentAnchorRow == 0) return false;
             int[,] newPosition = new int[3, 4];
@@ -191,14 +251,14 @@ namespace TetriSomething
             if (rotation != 1) oldPosition = getShape(shape, rotation - 1);
             else oldPosition = getShape(shape, 4);
 
-            int bounce = requiredBounce(newPosition, rotation);
+            int bounce = requiredBounce(newPosition, rotation);            
 
             if (!iCanRotate(tet_constants.gameMatrix, oldPosition, newPosition, bounce)) return false;
 
             setShapeInGameMatrix(oldPosition, 0); 
             setShapeInColorMatrix(oldPosition, 'w');
 
-            currentAnchorColumn += bounce;
+            currentAnchorColumn += bounce;            
 
             setShapeInGameMatrix(newPosition, 1);
             setShapeInColorMatrix(newPosition, currentShape);
@@ -274,21 +334,7 @@ namespace TetriSomething
             }
 
             return -bounce;
-        }       
-
-        public bool moveCurrentShape(int where)
-        {
-            int[,] shape = new int[3, 4];
-            shape = getShape(currentShape, currentRotation);
-
-            if (!isInBounds(where, shape)) return false;
-            if (!icanMoveThere(tet_constants.gameMatrix, shape, where)) return false;
-
-            if (where == 1) applyMoveToRight(shape);
-            else applyMoveToLeft(shape);
-
-            return true;
-        }
+        }           
 
         private bool icanMoveThere(int[,] gameMatrix, int[,] shape, int where)
         {
@@ -344,81 +390,7 @@ namespace TetriSomething
             setShapeInColorMatrix(shape, currentShape);
 
             mainWindow.drawMoveLeft(mainWindow.graphicsObj1, shape, currentAnchorRow, currentAnchorColumn, currentShape);
-        }
-
-        internal bool snapItDown()
-        {
-            int[,] shape = new int[3, 4];
-            myScore.addInstaDropBonus(20-currentAnchorRow);
-            shape = getShape(currentShape, currentRotation);
-            bool isFinalMove = applyMoveDown(shape);
-
-            while (!isFinalMove) isFinalMove = applyMoveDown(shape);
-
-            int clearedLinesThisDrop = 0;
-            int iCanStillRemove = removeOrNotAndWhat(tet_constants.gameMatrix);
-            while (iCanStillRemove != -1)
-            {
-                doTheRemove(tet_constants.gameMatrix, iCanStillRemove);
-                clearedLinesThisDrop++;
-                iCanStillRemove = removeOrNotAndWhat(tet_constants.gameMatrix);
-
-            }       
-
-            if (clearedLinesThisDrop != 0)
-            {
-                myScore.addScoringMove(clearedLinesThisDrop);
-                clearedLines += clearedLinesThisDrop;
-            }
-            else myScore.addNonScoringMove();
-
-            mainWindow.redrawMatrix(mainWindow.graphicsObj1);
-
-            if (!pushNewPiece()) return false;
-
-            return true;
-        }
-
-        internal bool moveCurrentShapeDown()
-        {
-            int[,] shape = new int[3, 4];
-            int[] removedPs = new int[10];
-            shape = getShape(currentShape, currentRotation);
-
-            bool isFinalMove = applyMoveDown(shape);
-
-            if (isFinalMove)
-            {
-                int clearedLinesThisDrop = 0;
-                int iCanStillRemove = removeOrNotAndWhat(tet_constants.gameMatrix);
-                while (iCanStillRemove != -1)
-                {
-                    removedPs = doTheRemove(tet_constants.gameMatrix, iCanStillRemove);
-                    for (int i = 0; i < 10; i++)
-                    {
-                        if (removedPs[i] == 'p')
-                            myScore.addStarBonus();
-                    }
-                    clearedLinesThisDrop++;
-                    iCanStillRemove = removeOrNotAndWhat(tet_constants.gameMatrix);                   
-                    
-                }
-
-                
-
-                if (clearedLinesThisDrop != 0)
-                {
-                    myScore.addScoringMove(clearedLinesThisDrop);
-                    clearedLines += clearedLinesThisDrop;                   
-                }                
-                else myScore.addNonScoringMove();
-
-                mainWindow.redrawMatrix(mainWindow.graphicsObj1);
-
-                if (!pushNewPiece()) return false; }
-            
-            return true;
-        }
+        }      
 
         private bool applyMoveDown(int[,] shape)
         {
