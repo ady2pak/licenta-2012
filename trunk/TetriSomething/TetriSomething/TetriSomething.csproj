@@ -164,6 +164,13 @@
     <Content Include="png\block_star.png" />
     <Content Include="png\block_white.png" />
     <Content Include="png\block_yellow.png" />
+    <Content Include="png\nextPieceI.png" />
+    <Content Include="png\nextPieceJ.png" />
+    <Content Include="png\nextPieceL.png" />
+    <Content Include="png\nextPieceO.png" />
+    <Content Include="png\nextPieceS.png" />
+    <Content Include="png\nextPieceT.png" />
+    <Content Include="png\nextPieceZ.png" />
     <Content Include="png\scoreNum0.png" />
     <Content Include="png\scoreNum1.png" />
     <Content Include="png\scoreNum2.png" />

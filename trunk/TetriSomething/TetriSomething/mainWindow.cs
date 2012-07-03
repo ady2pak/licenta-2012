@@ -34,7 +34,7 @@ namespace TetriSomething
         public System.Drawing.Graphics graphicsObj2;
 
         Pen myPen = new Pen(System.Drawing.Color.Black, 3);
-        System.Drawing.SolidBrush myBrush = new System.Drawing.SolidBrush(System.Drawing.Color.Black);
+        System.Drawing.SolidBrush myBrush = new System.Drawing.SolidBrush(System.Drawing.Color.White);
 
         public mainWindow()
         {
@@ -406,7 +406,7 @@ namespace TetriSomething
         public void drawMyScore(Graphics graphicsObj)
         {
             myBrush.Color = Color.Black;
-            graphicsObj.FillRectangle(myBrush, new Rectangle(40, 90, 180, 120));
+            graphicsObj.FillRectangle(myBrush, new Rectangle(40, 150, 180, 50));
 
             myBrush.Color = Color.Black;
             //graphicsObj.DrawString("Score : " + blockLogic.myScore.getScore(), new Font("Arial", 16), myBrush, new Point(40, 90));
@@ -428,7 +428,7 @@ namespace TetriSomething
             for (int i = 0; i < 7; i++)
             {
                 scoreNr = Image.FromFile(colors.getScoreNr(scoreVector[i]));
-                graphicsObj.DrawImage(scoreNr, new Rectangle(193 - i * 25, 100, 24, 40));
+                graphicsObj.DrawImage(scoreNr, new Rectangle(193 - i * 25, 150, 24, 40));
             }
 
                 //graphicsObj.DrawString("Cleared lines : " + blockLogic.clearedLines, new Font("Arial", 16), myBrush, new Point(40, 110));
@@ -438,33 +438,11 @@ namespace TetriSomething
 
         public void drawNextPiece(char p)
         {
-            int[,] shape = blockLogic.getShape(p, 1);
+            myBrush.Color = Color.Blue;
+            graphicsObj1.FillRectangle(myBrush, new Rectangle(40, 250, 180, 90));
 
-            char[,] nextShapeColorMatrix = { { 'w', 'w', 'w', 'w', 'w', 'w' }, { 'w', 'w', 'w', 'w', 'w', 'w' }, { 'w', 'w', 'w', 'w', 'w', 'w' } };
-            int rowAnchor = 1;
-            int columnAnchor = 2;
-
-            nextShapeColorMatrix[rowAnchor, columnAnchor] = p;
-            nextShapeColorMatrix[rowAnchor + shape[0, 0], columnAnchor + shape[0, 1]] = p;
-            nextShapeColorMatrix[rowAnchor + shape[1, 0], columnAnchor + shape[1, 1]] = p;
-            nextShapeColorMatrix[rowAnchor + shape[2, 0], columnAnchor + shape[2, 1]] = p;
-
-            Image _png;
-
-            for (int row = 0; row < 3; row++)
-                for (int column = 0; column < 5 ; column++)
-                {
-                    _png = Image.FromFile(colors.getPieceColor(nextShapeColorMatrix[row, column]));                    
-                    try
-                    {
-                        graphicsObj2.DrawImage(_png, new Rectangle(55 + column * 30, 250 + row * 30, 30, 30));
-                    }
-                    catch
-                    {
-                        break;
-                    }
-                }
-
+            Image png = Image.FromFile(colors.getNextPiecePng(p));
+            graphicsObj1.DrawImage(png, new Rectangle(40, 250, 180, 90));
         }
     }
 }
