@@ -29,6 +29,14 @@ namespace TetriSomething
         public const string NINE = "png/scoreNum9.png";
         public const string ZERO = "png/scoreNum0.png";
 
+        public const string PIECE_I = "png/nextPieceI.png";
+        public const string PIECE_J = "png/nextPieceJ.png";
+        public const string PIECE_L = "png/nextPieceL.png";
+        public const string PIECE_O = "png/nextPieceO.png";
+        public const string PIECE_S = "png/nextPieceS.png";
+        public const string PIECE_T = "png/nextPieceT.png";
+        public const string PIECE_Z = "png/nextPieceZ.png";
+
         public void initColorMatrix()
         {
             for (int row = 0; row < 20; row++)
@@ -130,6 +138,20 @@ namespace TetriSomething
                 case 8: return EIGHT;                    
                 case 9: return NINE;                    
                 default: return ZERO;
+            }
+        }
+
+        public string getNextPiecePng(char pieceData)
+        {
+            switch (pieceData)
+            {
+                case 'i': return PIECE_I;
+                case 'j': return PIECE_J;
+                case 'l': return PIECE_L;
+                case 'o': return PIECE_O;
+                case 's': return PIECE_S;
+                case 't': return PIECE_T;
+                default : return PIECE_Z; //default is Z
             }
         }
     }
