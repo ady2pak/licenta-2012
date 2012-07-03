@@ -151,14 +151,30 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="png\background.png" />
     <Content Include="png\block_blue.png" />
+    <Content Include="png\block_bomb.png" />
+    <Content Include="png\block_cyan.png" />
     <Content Include="png\block_green.png" />
     <Content Include="png\block_grey.png" />
     <Content Include="png\block_orange.png" />
     <Content Include="png\block_pink.png" />
+    <Content Include="png\block_purple.png" />
     <Content Include="png\block_red.png" />
+    <Content Include="png\block_star.png" />
     <Content Include="png\block_white.png" />
     <Content Include="png\block_yellow.png" />
+    <Content Include="png\scoreNum0.png" />
+    <Content Include="png\scoreNum1.png" />
+    <Content Include="png\scoreNum2.png" />
+    <Content Include="png\scoreNum3.png" />
+    <Content Include="png\scoreNum4.png" />
+    <Content Include="png\scoreNum5.png" />
+    <Content Include="png\scoreNum6.png" />
+    <Content Include="png\scoreNum7.png" />
+    <Content Include="png\scoreNum8.png" />
+    <Content Include="png\scoreNum9.png" />
+    <Content Include="png\Star.ico" />
     <Content Include="Star.ico" />
   </ItemGroup>
   <ItemGroup>

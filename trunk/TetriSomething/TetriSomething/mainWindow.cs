@@ -405,14 +405,66 @@ namespace TetriSomething
 
         public void drawMyScore(Graphics graphicsObj)
         {
-            myBrush.Color = Color.White;
-            graphicsObj.FillRectangle(myBrush, new Rectangle(40, 100, 180, 120));
+            myBrush.Color = Color.Black;
+            graphicsObj.FillRectangle(myBrush, new Rectangle(40, 90, 180, 120));
 
             myBrush.Color = Color.Black;
-            graphicsObj.DrawString("Score : " + blockLogic.myScore.getScore(), new Font("Arial", 16), myBrush, new Point(40, 100));
-            graphicsObj.DrawString("Cleared lines : " + blockLogic.clearedLines, new Font("Arial", 16), myBrush, new Point(40, 120));
-            graphicsObj.DrawString("Multiplier : " + blockLogic.myScore.getScoreMultiplier(), new Font("Arial", 16), myBrush, new Point(40, 140));
-            graphicsObj.DrawString("Used shapes : " + blockLogic.usedShapesNr, new Font("Arial", 16), myBrush, new Point(40, 160));
+            //graphicsObj.DrawString("Score : " + blockLogic.myScore.getScore(), new Font("Arial", 16), myBrush, new Point(40, 90));
+            
+            long tempScore = blockLogic.myScore.getScore();
+
+            int[] scoreVector = new int[7];
+            int index = 0;
+
+            while (tempScore != 0)
+            {
+                scoreVector[index] = (int)tempScore % 10;
+                tempScore /= 10;
+                index++;
+            }
+
+            Image scoreNr;
+
+            for (int i = 0; i < 7; i++)
+            {
+                scoreNr = Image.FromFile(colors.getScoreNr(scoreVector[i]));
+                graphicsObj.DrawImage(scoreNr, new Rectangle(193 - i * 25, 100, 24, 40));
+            }
+
+                //graphicsObj.DrawString("Cleared lines : " + blockLogic.clearedLines, new Font("Arial", 16), myBrush, new Point(40, 110));
+            //graphicsObj.DrawString("Multiplier : " + blockLogic.myScore.getScoreMultiplier(), new Font("Arial", 16), myBrush, new Point(40, 130));
+            //graphicsObj.DrawString("Used shapes : " + blockLogic.usedShapesNr, new Font("Arial", 16), myBrush, new Point(40, 150));
+        }
+
+        public void drawNextPiece(char p)
+        {
+            int[,] shape = blockLogic.getShape(p, 1);
+
+            char[,] nextShapeColorMatrix = { { 'w', 'w', 'w', 'w', 'w', 'w' }, { 'w', 'w', 'w', 'w', 'w', 'w' }, { 'w', 'w', 'w', 'w', 'w', 'w' } };
+            int rowAnchor = 1;
+            int columnAnchor = 2;
+
+            nextShapeColorMatrix[rowAnchor, columnAnchor] = p;
+            nextShapeColorMatrix[rowAnchor + shape[0, 0], columnAnchor + shape[0, 1]] = p;
+            nextShapeColorMatrix[rowAnchor + shape[1, 0], columnAnchor + shape[1, 1]] = p;
+            nextShapeColorMatrix[rowAnchor + shape[2, 0], columnAnchor + shape[2, 1]] = p;
+
+            Image _png;
+
+            for (int row = 0; row < 3; row++)
+                for (int column = 0; column < 5 ; column++)
+                {
+                    _png = Image.FromFile(colors.getPieceColor(nextShapeColorMatrix[row, column]));                    
+                    try
+                    {
+                        graphicsObj2.DrawImage(_png, new Rectangle(55 + column * 30, 250 + row * 30, 30, 30));
+                    }
+                    catch
+                    {
+                        break;
+                    }
+                }
+
         }
     }
 }
