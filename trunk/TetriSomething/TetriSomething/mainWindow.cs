@@ -405,8 +405,8 @@ namespace TetriSomething
 
         public void drawMyScore(Graphics graphicsObj)
         {
-            myBrush.Color = Color.Black;
-            graphicsObj.FillRectangle(myBrush, new Rectangle(40, 150, 180, 50));
+            myBrush.Color = Color.DarkBlue;
+            graphicsObj.FillRectangle(myBrush, new Rectangle(40, 120, 180, 55));
 
             myBrush.Color = Color.Black;
             //graphicsObj.DrawString("Score : " + blockLogic.myScore.getScore(), new Font("Arial", 16), myBrush, new Point(40, 90));
@@ -428,7 +428,7 @@ namespace TetriSomething
             for (int i = 0; i < 7; i++)
             {
                 scoreNr = Image.FromFile(colors.getScoreNr(scoreVector[i]));
-                graphicsObj.DrawImage(scoreNr, new Rectangle(193 - i * 25, 150, 24, 40));
+                graphicsObj.DrawImage(scoreNr, new Rectangle(193 - i * 25, 125, 24, 40));
             }
 
                 //graphicsObj.DrawString("Cleared lines : " + blockLogic.clearedLines, new Font("Arial", 16), myBrush, new Point(40, 110));
@@ -438,7 +438,8 @@ namespace TetriSomething
 
         public void drawNextPiece(char p)
         {
-            myBrush.Color = Color.Blue;
+            myBrush.Color = Color.LightSkyBlue;
+            //myBrush.Color = Color.LightPink;
             graphicsObj1.FillRectangle(myBrush, new Rectangle(40, 250, 180, 90));
 
             Image png = Image.FromFile(colors.getNextPiecePng(p));

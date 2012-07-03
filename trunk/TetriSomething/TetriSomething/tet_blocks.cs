@@ -83,7 +83,7 @@ namespace TetriSomething
 
         }
 
-        public bool pushNewPiece()
+        void decideIfStar()
         {
             tet_random random = new tet_random();
             int highestBOnus = highestRowWithPieces(tet_constants.gameMatrix);
@@ -93,14 +93,14 @@ namespace TetriSomething
                 {
                     //this piece's powerup;
                     int whatColumn = random.getRandomInt(10);
-                    int whatRow = random.getRandomInt(20-highestBOnus);
+                    int whatRow = random.getRandomInt(20 - highestBOnus);
                     //try
                     //{
-                        tet_constants.gameMatrix[19 - whatRow, whatColumn] = 1;
-                        tet_constants.colorMatrix[19 - whatRow, whatColumn] = 'p';
+                    tet_constants.gameMatrix[19 - whatRow, whatColumn] = 1;
+                    tet_constants.colorMatrix[19 - whatRow, whatColumn] = 'p';
 
-                        Image image = Image.FromFile(tet_colors.STAR);
-                        mainWindow.graphicsObj2.DrawImage(image, new Rectangle(260 + whatColumn * 30, 100 + (19 - whatRow) * 30, 30, 30));
+                    Image image = Image.FromFile(tet_colors.STAR);
+                    mainWindow.graphicsObj2.DrawImage(image, new Rectangle(260 + whatColumn * 30, 100 + (19 - whatRow) * 30, 30, 30));
                     //}
                     //catch
                     //{
@@ -108,6 +108,11 @@ namespace TetriSomething
                     //}
                 }
             }
+        }
+
+        public bool pushNewPiece()
+        {
+            //decideIfStar();
 
             //usedShapesNr++;
 
