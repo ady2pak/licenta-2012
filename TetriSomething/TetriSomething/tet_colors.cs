@@ -18,6 +18,17 @@ namespace TetriSomething
         public const string STAR = "png/block_star.png";
         public const string BOMB = "png/block_bomb.png";
 
+        public const string ONE = "png/scoreNum1.png";
+        public const string TWO = "png/scoreNum2.png";
+        public const string THREE = "png/scoreNum3.png";
+        public const string FOUR = "png/scoreNum4.png";
+        public const string FIVE = "png/scoreNum5.png";
+        public const string SIX = "png/scoreNum6.png";
+        public const string SEVEN = "png/scoreNum7.png";
+        public const string EIGHT = "png/scoreNum8.png";
+        public const string NINE = "png/scoreNum9.png";
+        public const string ZERO = "png/scoreNum0.png";
+
         public void initColorMatrix()
         {
             for (int row = 0; row < 20; row++)
@@ -103,6 +114,23 @@ namespace TetriSomething
            
 
             
+        }
+
+        public string getScoreNr(int p)
+        {
+            switch (p)
+            {
+                case 1: return ONE;                    
+                case 2: return TWO;                   
+                case 3: return THREE;                    
+                case 4: return FOUR;                   
+                case 5: return FIVE;                    
+                case 6: return SIX;                    
+                case 7: return SEVEN;                    
+                case 8: return EIGHT;                    
+                case 9: return NINE;                    
+                default: return ZERO;
+            }
         }
     }
 }

@@ -12,7 +12,7 @@ namespace TetriSomething
         tet_colors colors = new tet_colors();
         public tet_score myScore = new tet_score();
         public char currentShape;
-        int currentRotation;
+        public int currentRotation;
         int currentAnchorRow;
         int currentAnchorColumn;        
         public int usedShapesNr = 0;
@@ -25,7 +25,7 @@ namespace TetriSomething
             this.mainWindow = mainWindow;
         }
 
-        int[,] getShape(char shape, int rotation)
+        public int[,] getShape(char shape, int rotation)
         {
             int[,] toModify = new int[3, 4];
 
@@ -117,6 +117,9 @@ namespace TetriSomething
                 futureBlocks = generateNextBlocks();
             }
 
+            if (usedShapesNr % 10 == 9) { mainWindow.drawNextPiece(futureBlocks[0]); }
+            else mainWindow.drawNextPiece(currentBlocks[usedShapesNr % 10 + 1]);
+
             currentShape = currentBlocks[usedShapesNr % 10];            
             currentRotation = 1;
             currentAnchorRow = 0;
@@ -172,9 +175,12 @@ namespace TetriSomething
             int[] removedPs = new int[10];
             bool isFinalMove = false;
             shape = getShape(currentShape, currentRotation);
-            
+
             if (type == "SNAP")
-                while (!isFinalMove) isFinalMove = applyMoveDown(shape);
+            {
+                myScore.addInstaDropBonus(20 - currentAnchorRow);
+                while (!isFinalMove) isFinalMove = applyMoveDown(shape);                
+            }
             else isFinalMove = applyMoveDown(shape);
 
             if (isFinalMove)
