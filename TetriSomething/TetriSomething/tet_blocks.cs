@@ -10,6 +10,8 @@ namespace TetriSomething
         tet_constants game = new tet_constants();
         tet_shapes myShapes = new tet_shapes();
         tet_colors colors = new tet_colors();
+        public tet_network_object objectToSend = new tet_network_object();
+        public tet_network_object oldReceivedObject = new tet_network_object();
         public tet_score myScore = new tet_score();
         public char currentShape;
         public int currentRotation;
@@ -122,8 +124,16 @@ namespace TetriSomething
                 futureBlocks = generateNextBlocks();
             }
 
-            if (usedShapesNr % 10 == 9) { mainWindow.drawNextPiece(futureBlocks[0]); }
-            else mainWindow.drawNextPiece(currentBlocks[usedShapesNr % 10 + 1]);
+            if (usedShapesNr % 10 == 9)
+            {
+                mainWindow.drawMyNextShape(futureBlocks[0]);
+                objectToSend.enemyNextShape = futureBlocks[0];
+            }
+            else
+            {
+                mainWindow.drawMyNextShape(currentBlocks[usedShapesNr % 10 + 1]);
+                objectToSend.enemyNextShape = currentBlocks[usedShapesNr % 10 + 1];
+            }
 
             currentShape = currentBlocks[usedShapesNr % 10];            
             currentRotation = 1;
@@ -205,8 +215,6 @@ namespace TetriSomething
 
                 }
 
-
-
                 if (clearedLinesThisDrop != 0)
                 {
                     myScore.addScoringMove(clearedLinesThisDrop);
@@ -218,7 +226,9 @@ namespace TetriSomething
 
                 mainWindow.drawMyMatrix(mainWindow.graphicsObj1);
 
-                mainWindow.drawMyScore(mainWindow.graphicsObj1);                
+                mainWindow.drawMyScore(mainWindow.graphicsObj1);
+
+                objectToSend.enemyScore = myScore.getScore();
 
                 if (!pushNewPiece()) return false;
             }

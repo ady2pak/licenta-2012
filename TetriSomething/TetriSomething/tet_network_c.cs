@@ -24,12 +24,14 @@ namespace TetriSomething
         public AsyncCallback m_pfnCallBack;
         public bool iAmConnected;
         mainWindow mainWindow;
-
+        
         public tet_network_c(mainWindow mainWindow)
         {
+            string ip = System.IO.File.ReadAllText(@"settings.txt");
+
             this.mainWindow = mainWindow;
             m_clientSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            IPAddress[] ipAddress = Dns.GetHostAddresses("127.0.0.1");
+            IPAddress[] ipAddress = Dns.GetHostAddresses(ip);
             IPEndPoint ipEnd = new IPEndPoint(ipAddress[0], 8221);
             m_clientSocket.Connect(ipEnd);
             if (m_clientSocket.Connected)
@@ -77,35 +79,50 @@ namespace TetriSomething
                 stream.Write(buffer, 0, buffer.Length);
                 stream.Seek(0, 0);                
 
-                char [,] objReceived;
-                objReceived = (char[,])formatter.Deserialize(stream);
+                tet_network_object objReceived;
+                objReceived = (tet_network_object)formatter.Deserialize(stream);
 
                 parseObject(objReceived);
 
                 WaitForData();
             }
-            catch (ObjectDisposedException se)
+            catch (Exception ex)
             {
-                MessageBox.Show(se.Message);
-            }
-            catch (SocketException se)
-            {
-                MessageBox.Show(se.Message);
+                MessageBox.Show("Something bad happened : " + ex.Message, "Battle Tetrix", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
+                Application.Restart();
             }
         }
 
-        private void parseObject(char[,] objReceived)
+        private void parseObject(tet_network_object objReceived)
         {
+            //tet_network_object received = (tet_network_object)objReceived;
+
             //mainWindow.appendMatrixToDebug(objReceived);
-            mainWindow.drawHisMatrix(mainWindow.graphicsObj2, objReceived);
+
+            if (mainWindow.blockLogic.oldReceivedObject != null)
+            {
+                if (objReceived.enemyScore != mainWindow.blockLogic.oldReceivedObject.enemyScore)
+                    mainWindow.drawHisScore(mainWindow.graphicsObj2, objReceived.enemyScore);
+                if (objReceived.enemyNextShape != mainWindow.blockLogic.oldReceivedObject.enemyNextShape)
+                    mainWindow.drawHisNexShape(mainWindow.graphicsObj2, objReceived.enemyNextShape);
+                mainWindow.drawHisMatrix(mainWindow.graphicsObj2, objReceived.enemyColorMatrix);
+            }
+            else
+            {
+                mainWindow.drawHisMatrix(mainWindow.graphicsObj2, objReceived.enemyColorMatrix);
+                mainWindow.drawHisScore(mainWindow.graphicsObj2, objReceived.enemyScore);
+                mainWindow.drawHisNexShape(mainWindow.graphicsObj2, objReceived.enemyNextShape);
+            }
+
+            mainWindow.blockLogic.oldReceivedObject = objReceived;
         }
 
-        public void sendMsgToClient()
+        internal void sendMsgToClient(tet_network_object objToSend)
         {
             IFormatter formatter = new BinaryFormatter();
             Stream stream = new MemoryStream();
 
-            formatter.Serialize(stream, tet_constants.colorMatrix);
+            formatter.Serialize(stream, objToSend);
 
             byte[] buffer = ((MemoryStream)stream).ToArray();
             m_clientSocket.Send(buffer, buffer.Length, 0);
