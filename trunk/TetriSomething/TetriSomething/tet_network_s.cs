@@ -7,6 +7,7 @@ using System.Net;
 using System.Runtime.Serialization;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Windows.Forms;
 
 namespace TetriSomething
 {
@@ -53,9 +54,10 @@ namespace TetriSomething
                 m_socListener.Listen(4);
                 m_socListener.BeginAccept(new AsyncCallback(OnClientConnect), null);
             }
-            catch (SocketException se)
+            catch (Exception ex)
             {
-                //serverMW.appendDebugOutput(se.Message);
+                MessageBox.Show("Something bad happened : " + ex.Message, "Battle Tetrix", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
+                Application.Restart();
             }
         }
 
@@ -76,17 +78,10 @@ namespace TetriSomething
 
                 mainWindow.reloadGame();
             }
-            catch (ObjectDisposedException)
-            {
-                //System.Diagnostics.Debugger.Log(0, "1", "\n OnClientConnection: Socket has been closed\n");
-            }
-            catch (SocketException se)
-            {
-                //serverMW.appendDebugOutput(se.Message + se.StackTrace);
-            }
             catch (Exception ex)
             {
-                //serverMW.appendDebugOutput(ex.Message + ex.StackTrace);
+                MessageBox.Show("Something bad happened : " + ex.Message, "Battle Tetrix", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
+                Application.Restart();
             }
         }
         
@@ -106,9 +101,10 @@ namespace TetriSomething
                     pfnWorkerCallback,
                     theSokPkt);
             }
-            catch (SocketException se)
+            catch (Exception ex)
             {
-                //serverMW.appendDebugOutput(se.Message);
+                MessageBox.Show("Something bad happened : " + ex.Message, "Battle Tetrix", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
+                Application.Restart();
             }
         }
 
@@ -128,11 +124,9 @@ namespace TetriSomething
                 Stream stream = new MemoryStream();
 
                 stream.Write(buffer, 0, buffer.Length);
-                stream.Seek(0, 0);
+                stream.Seek(0, 0);               
 
-                //dataTypes objReceived = new dataTypes();
-
-                char[,] objReceived = (char[,])formatter.Deserialize(stream);
+                tet_network_object objReceived = (tet_network_object)formatter.Deserialize(stream);
 
                 parseObject(objReceived);
 
@@ -140,33 +134,41 @@ namespace TetriSomething
                 
                 WaitForData(socketData.m_currentSocket);
             }
-            catch (ObjectDisposedException)
-            {
-                //System.Diagnostics.Debugger.Log(0, "1", "\nOnDataReceived: Socket has been closed\n");
-            }
-            catch (SocketException se)
-            {
-               
-            }
             catch (Exception ex)
             {
-                //serverMW.appendDebugOutput(ex.Message);
+                MessageBox.Show("Something bad happened : " + ex.Message, "Battle Tetrix", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
+                Application.Restart();
             }
         }
 
-        private void parseObject(char[,] objReceived)
+        private void parseObject(tet_network_object objReceived)
         {
-            //mainWindow.appendMatrixToDebug(objReceived);
-            mainWindow.drawHisMatrix(mainWindow.graphicsObj2, objReceived);
+
+            if (mainWindow.blockLogic.oldReceivedObject != null)
+            {
+                if (objReceived.enemyScore != mainWindow.blockLogic.oldReceivedObject.enemyScore)
+                    mainWindow.drawHisScore(mainWindow.graphicsObj2, objReceived.enemyScore);
+                if (objReceived.enemyNextShape != mainWindow.blockLogic.oldReceivedObject.enemyNextShape)
+                    mainWindow.drawHisNexShape(mainWindow.graphicsObj2, objReceived.enemyNextShape);
+                mainWindow.drawHisMatrix(mainWindow.graphicsObj2, objReceived.enemyColorMatrix);
+            }
+            else
+            {
+                mainWindow.drawHisMatrix(mainWindow.graphicsObj2, objReceived.enemyColorMatrix);
+                mainWindow.drawHisScore(mainWindow.graphicsObj2, objReceived.enemyScore);
+                mainWindow.drawHisNexShape(mainWindow.graphicsObj2, objReceived.enemyNextShape);
+            }
+
+            mainWindow.blockLogic.oldReceivedObject = objReceived;
                 
         }
 
-        internal void sendMsgToClient()
+        internal void sendMsgToClient(tet_network_object objToSend)
         {
             IFormatter formatter = new BinaryFormatter();
             Stream stream = new MemoryStream();
 
-            formatter.Serialize(stream, tet_constants.colorMatrix);
+            formatter.Serialize(stream, objToSend);
 
             byte[] buffer = ((MemoryStream)stream).ToArray();
             m_socWorker[0].Send(buffer, buffer.Length, 0);

@@ -18,7 +18,7 @@ namespace TetriSomething
         public bool isConnectedAsServer = false;
         public bool isMultiplayer = false;
 
-        tet_blocks blockLogic;
+        public tet_blocks blockLogic;
         char[] currentBlocks, futureBlocks = new char[10];
         
         tet_random random = new tet_random();
@@ -148,8 +148,8 @@ namespace TetriSomething
                     //TheGame.autodrop.Enabled = false;
                     bool isValid = blockLogic.rotateCurrentShape();
                     //appendMatrixToDebug();
-                    if (isConnectedAsClient) client.sendMsgToClient();
-                    if (isConnectedAsServer) server.sendMsgToClient();
+                    if (isConnectedAsClient) client.sendMsgToClient(blockLogic.objectToSend);
+                    if (isConnectedAsServer) server.sendMsgToClient(blockLogic.objectToSend);
                     //TheGame.autodrop.Enabled = true;
                     if (isValid) { } // redrawMatrix(graphicsObj1);
                 }
@@ -161,8 +161,8 @@ namespace TetriSomething
                     //TheGame.autodrop.Enabled = false;
                     bool isValid = blockLogic.moveCurrentShape(-1);
                     //appendMatrixToDebug();
-                    if (isConnectedAsClient) client.sendMsgToClient();
-                    if (isConnectedAsServer) server.sendMsgToClient();
+                    if (isConnectedAsClient) client.sendMsgToClient(blockLogic.objectToSend);
+                    if (isConnectedAsServer) server.sendMsgToClient(blockLogic.objectToSend);
                     //TheGame.autodrop.Enabled = true;
                     if (isValid) { } // redrawMatrix(graphicsObj1);
                 }
@@ -174,21 +174,31 @@ namespace TetriSomething
                     //TheGame.autodrop.Enabled = false;
                     bool isValid = blockLogic.moveCurrentShape(1);
                     //appendMatrixToDebug();
-                    if (isConnectedAsClient) client.sendMsgToClient();
-                    if (isConnectedAsServer) server.sendMsgToClient();
+                    if (isConnectedAsClient) client.sendMsgToClient(blockLogic.objectToSend);
+                    if (isConnectedAsServer) server.sendMsgToClient(blockLogic.objectToSend);
                     //TheGame.autodrop.Enabled = true;
                     if (isValid) { } // redrawMatrix(graphicsObj1);
                 }
             }
             if (e.KeyCode == Keys.Down)
             {
+                //TheGame.autodrop.Enabled = false;
+                bool isValid = blockLogic.moveCurrentShapeDown("STEP");
+                //appendMatrixToDebug();
+                if (isConnectedAsClient) client.sendMsgToClient(blockLogic.objectToSend);
+                if (isConnectedAsServer) server.sendMsgToClient(blockLogic.objectToSend);
+                //TheGame.autodrop.Enabled = true;
+                if (isValid) { } // redrawMatrix(graphicsObj1);
+            }
+            if (e.KeyCode == Keys.NumPad0)
+            {
                 if (isGameStarted)
                 {
                     TheGame.autodrop.Enabled = false;
                     bool isValid = blockLogic.moveCurrentShapeDown("SNAP");
                     //appendMatrixToDebug();
-                    if (isConnectedAsClient) client.sendMsgToClient();
-                    if (isConnectedAsServer) server.sendMsgToClient();
+                    if (isConnectedAsClient) client.sendMsgToClient(blockLogic.objectToSend);
+                    if (isConnectedAsServer) server.sendMsgToClient(blockLogic.objectToSend);
                     TheGame.autodrop.Enabled = true;
                     if (isValid) { } //redrawMatrix(graphicsObj1);
                     else
@@ -230,7 +240,12 @@ namespace TetriSomething
             {
                 if (!isGameStarted && isMultiplayer)
                 {
-                    client = new tet_network_c(this);
+                    try { client = new tet_network_c(this); }
+                    catch
+                    {
+                        MessageBox.Show("Host not found, application will restart (dirty fix, needs a more elegant one) ", "Battle Tetrix", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
+                        Application.Restart();
+                    }
                     isConnectedAsClient = true;
                 }
             }
@@ -286,10 +301,23 @@ namespace TetriSomething
             blockLogic.clearedLines = 0;
             blockLogic.myScore.resetScore();
             blockLogic.initializePieces();
+
+            blockLogic.oldReceivedObject = null;
+
+            blockLogic.objectToSend.enemyColorMatrix = tet_constants.colorMatrix;
+            blockLogic.objectToSend.enemyClearedLines = blockLogic.clearedLines;
+            blockLogic.objectToSend.enemyUsedShapes = blockLogic.usedShapesNr;
+            blockLogic.objectToSend.enemyScore = blockLogic.myScore.getScore();
+            blockLogic.objectToSend.enemyNextShape = blockLogic.currentShape;
+
             blockLogic.pushNewPiece();
 
             drawMyMatrix(graphicsObj1);
             drawHisMatrix(graphicsObj2, tet_constants.hisColorMatrix);
+
+            //Image image = Image.FromFile("png/ForeverAlone.png");
+            //graphicsObj2.DrawImage(image, new Rectangle(680, 100, 300, 600));
+
             drawMyScore(graphicsObj1);
 
             isGameStarted = true;
@@ -436,7 +464,36 @@ namespace TetriSomething
             //graphicsObj.DrawString("Used shapes : " + blockLogic.usedShapesNr, new Font("Arial", 16), myBrush, new Point(40, 150));
         }
 
-        public void drawNextPiece(char p)
+        public void drawHisScore(Graphics graphicsObj, long hisScore)
+        {
+            myBrush.Color = Color.DarkBlue;
+            graphicsObj.FillRectangle(myBrush, new Rectangle(1020, 120, 180, 55));
+
+            myBrush.Color = Color.Black;
+            //graphicsObj.DrawString("Score : " + blockLogic.myScore.getScore(), new Font("Arial", 16), myBrush, new Point(40, 90));
+
+            long tempScore = hisScore;
+
+            int[] scoreVector = new int[7];
+            int index = 0;
+
+            while (tempScore != 0)
+            {
+                scoreVector[index] = (int)tempScore % 10;
+                tempScore /= 10;
+                index++;
+            }
+
+            Image scoreNr;
+
+            for (int i = 0; i < 7; i++)
+            {
+                scoreNr = Image.FromFile(colors.getScoreNr(scoreVector[i]));
+                graphicsObj.DrawImage(scoreNr, new Rectangle(1173 - i * 25, 125, 24, 40));
+            }
+        }
+
+        public void drawMyNextShape(char p)
         {
             myBrush.Color = Color.LightSkyBlue;
             //myBrush.Color = Color.LightPink;
@@ -444,6 +501,16 @@ namespace TetriSomething
 
             Image png = Image.FromFile(colors.getNextPiecePng(p));
             graphicsObj1.DrawImage(png, new Rectangle(40, 250, 180, 90));
+        }
+
+        public void drawHisNexShape(Graphics graphics, char p)
+        {
+            myBrush.Color = Color.LightSkyBlue;
+            //myBrush.Color = Color.LightPink;
+            graphics.FillRectangle(myBrush, new Rectangle(1020, 250, 180, 90));
+
+            Image png = Image.FromFile(colors.getNextPiecePng(p));
+            graphics.DrawImage(png, new Rectangle(1020, 250, 180, 90));
         }
     }
 }

@@ -38,8 +38,8 @@ namespace TetriSomething
         {            
             bool isValid = blockLogic.moveCurrentShapeDown("STEP");
             //mainWindow.appendMatrixToDebug();
-            if (mainWindow.isConnectedAsClient) mainWindow.client.sendMsgToClient();
-            if (mainWindow.isConnectedAsServer) mainWindow.server.sendMsgToClient();
+            if (mainWindow.isConnectedAsClient) mainWindow.client.sendMsgToClient(blockLogic.objectToSend);
+            if (mainWindow.isConnectedAsServer) mainWindow.server.sendMsgToClient(blockLogic.objectToSend);
             if (isValid) { }//mainWindow.redrawMatrix(mainWindow.graphicsObj2);
             else
             {
