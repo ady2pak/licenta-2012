@@ -147,16 +147,16 @@ namespace TetriSomething
             if (mainWindow.blockLogic.oldReceivedObject != null)
             {
                 if (objReceived.enemyScore != mainWindow.blockLogic.oldReceivedObject.enemyScore)
-                    mainWindow.drawHisScore(mainWindow.graphicsObj2, objReceived.enemyScore);
+                    mainWindow.drawHisScore(mainWindow.hisGraphics, objReceived.enemyScore);
                 if (objReceived.enemyNextShape != mainWindow.blockLogic.oldReceivedObject.enemyNextShape)
-                    mainWindow.drawHisNexShape(mainWindow.graphicsObj2, objReceived.enemyNextShape);
-                mainWindow.drawHisMatrix(mainWindow.graphicsObj2, objReceived.enemyColorMatrix);
+                    mainWindow.drawHisNexShape(mainWindow.hisGraphics, objReceived.enemyNextShape);
+                mainWindow.drawHisMatrix(mainWindow.hisGraphics, objReceived.enemyColorMatrix);
             }
             else
             {
-                mainWindow.drawHisMatrix(mainWindow.graphicsObj2, objReceived.enemyColorMatrix);
-                mainWindow.drawHisScore(mainWindow.graphicsObj2, objReceived.enemyScore);
-                mainWindow.drawHisNexShape(mainWindow.graphicsObj2, objReceived.enemyNextShape);
+                mainWindow.drawHisMatrix(mainWindow.hisGraphics, objReceived.enemyColorMatrix);
+                mainWindow.drawHisScore(mainWindow.hisGraphics, objReceived.enemyScore);
+                mainWindow.drawHisNexShape(mainWindow.hisGraphics, objReceived.enemyNextShape);
             }
 
             mainWindow.blockLogic.oldReceivedObject = objReceived;

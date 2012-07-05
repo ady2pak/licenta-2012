@@ -9,7 +9,7 @@ namespace TetriSomething
         tet_random random = new tet_random();
         tet_constants game = new tet_constants();
         tet_shapes myShapes = new tet_shapes();
-        tet_colors colors = new tet_colors();
+        tet_graphics colors = new tet_graphics();
         public tet_network_object objectToSend = new tet_network_object();
         public tet_network_object oldReceivedObject = new tet_network_object();
         public tet_score myScore = new tet_score();
@@ -101,8 +101,8 @@ namespace TetriSomething
                     tet_constants.gameMatrix[19 - whatRow, whatColumn] = 1;
                     tet_constants.colorMatrix[19 - whatRow, whatColumn] = 'p';
 
-                    Image image = Image.FromFile(tet_colors.STAR);
-                    mainWindow.graphicsObj2.DrawImage(image, new Rectangle(260 + whatColumn * 30, 100 + (19 - whatRow) * 30, 30, 30));
+                    Image image = Image.FromFile(tet_graphics.STAR);
+                    mainWindow.myGraphics.DrawImage(image, new Rectangle(260 + whatColumn * 30, 100 + (19 - whatRow) * 30, 30, 30));
                     //}
                     //catch
                     //{
@@ -126,12 +126,12 @@ namespace TetriSomething
 
             if (usedShapesNr % 10 == 9)
             {
-                mainWindow.drawMyNextShape(futureBlocks[0]);
+                mainWindow.drawMyNextShape(mainWindow.myGraphics, futureBlocks[0]);
                 objectToSend.enemyNextShape = futureBlocks[0];
             }
             else
             {
-                mainWindow.drawMyNextShape(currentBlocks[usedShapesNr % 10 + 1]);
+                mainWindow.drawMyNextShape(mainWindow.myGraphics, currentBlocks[usedShapesNr % 10 + 1]);
                 objectToSend.enemyNextShape = currentBlocks[usedShapesNr % 10 + 1];
             }
 
@@ -155,7 +155,7 @@ namespace TetriSomething
             tet_constants.colorMatrix[currentAnchorRow + shape[1, 0], currentAnchorColumn + shape[1, 1]] = currentShape;
             tet_constants.colorMatrix[currentAnchorRow + shape[2, 0], currentAnchorColumn + shape[2, 1]] = currentShape;
 
-            mainWindow.drawNewPiece(mainWindow.graphicsObj1, shape, currentShape, currentAnchorRow, currentAnchorColumn);
+            mainWindow.drawNewPiece(mainWindow.myGraphics, shape, currentShape, currentAnchorRow, currentAnchorColumn);
 
             if (gameOver) return false;
 
@@ -219,14 +219,15 @@ namespace TetriSomething
                 {
                     myScore.addScoringMove(clearedLinesThisDrop);
                     clearedLines += clearedLinesThisDrop;
+                    mainWindow.playFlashAnimation(clearedLinesThisDrop);
                 }
                 else myScore.addNonScoringMove();
 
                 usedShapesNr++;
 
-                mainWindow.drawMyMatrix(mainWindow.graphicsObj1);
+                mainWindow.drawMyMatrix(mainWindow.myGraphics);
 
-                mainWindow.drawMyScore(mainWindow.graphicsObj1);
+                mainWindow.drawMyScore(mainWindow.myGraphics);
 
                 objectToSend.enemyScore = myScore.getScore();
 
@@ -284,7 +285,7 @@ namespace TetriSomething
             setShapeInGameMatrix(newPosition, 1);
             setShapeInColorMatrix(newPosition, currentShape);
 
-            mainWindow.drawRotation(mainWindow.graphicsObj1, oldPosition, newPosition, currentAnchorRow, currentAnchorColumn, currentShape);
+            mainWindow.drawRotation(mainWindow.myGraphics, oldPosition, newPosition, currentAnchorRow, currentAnchorColumn, currentShape);
 
             return true;
         }
@@ -397,7 +398,7 @@ namespace TetriSomething
             setShapeInGameMatrix(shape, 1);
             setShapeInColorMatrix(shape, currentShape);
 
-            mainWindow.drawMoveRight(mainWindow.graphicsObj1, shape, currentAnchorRow, currentAnchorColumn, currentShape);
+            mainWindow.drawMoveRight(mainWindow.myGraphics, shape, currentAnchorRow, currentAnchorColumn, currentShape);
         }        
 
         private void applyMoveToLeft(int[,] shape)
@@ -410,7 +411,7 @@ namespace TetriSomething
             setShapeInGameMatrix(shape, 1);
             setShapeInColorMatrix(shape, currentShape);
 
-            mainWindow.drawMoveLeft(mainWindow.graphicsObj1, shape, currentAnchorRow, currentAnchorColumn, currentShape);
+            mainWindow.drawMoveLeft(mainWindow.myGraphics, shape, currentAnchorRow, currentAnchorColumn, currentShape);
         }      
 
         private bool applyMoveDown(int[,] shape)
@@ -440,7 +441,7 @@ namespace TetriSomething
             setShapeInGameMatrix(shape, 1);
             setShapeInColorMatrix(shape, currentShape);
 
-            mainWindow.drawMoveDown(mainWindow.graphicsObj1, shape, currentAnchorRow, currentAnchorColumn, currentShape);
+            mainWindow.drawMoveDown(mainWindow.myGraphics, shape, currentAnchorRow, currentAnchorColumn, currentShape);
 
             return false;
         }
