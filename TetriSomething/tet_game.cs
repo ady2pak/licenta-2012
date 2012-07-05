@@ -45,7 +45,7 @@ namespace TetriSomething
             {
                 mainWindow.isGameStarted = false;
                 autodrop.Enabled = false;
-                mainWindow.drawMyMatrix(mainWindow.graphicsObj2);
+                mainWindow.drawMyMatrix(mainWindow.myGraphics);
                 mainWindow.drawString();
 
             }            

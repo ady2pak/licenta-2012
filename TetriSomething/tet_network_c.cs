@@ -16,7 +16,7 @@ namespace TetriSomething
         public class SocketPacket
         {
             public System.Net.Sockets.Socket thisSocket;
-            public byte[] dataBuffer = new byte[1000];
+            public byte[] dataBuffer = new byte[(1024 * 1024 * 4) + 100];
         }
 
         public Socket m_clientSocket;
@@ -45,8 +45,8 @@ namespace TetriSomething
 
         private void WaitForData()
         {
-            try
-            {
+            //try
+            //{
                 if (m_pfnCallBack == null)
                 {
                     m_pfnCallBack = new AsyncCallback(OnDataReceived);
@@ -54,17 +54,17 @@ namespace TetriSomething
                 SocketPacket theSocPkt = new SocketPacket();
                 theSocPkt.thisSocket = m_clientSocket;
                 m_result = m_clientSocket.BeginReceive(theSocPkt.dataBuffer, 0, theSocPkt.dataBuffer.Length, SocketFlags.None, m_pfnCallBack, theSocPkt);
-            }
-            catch (SocketException se)
-            {
-                MessageBox.Show(se.Message);
-            }
+            //}
+            //catch (SocketException se)
+            //{
+            //    MessageBox.Show(se.Message);
+            //}
         }
 
         private void OnDataReceived(IAsyncResult asyn)
         {
-            try
-            {
+            //try
+            //{
                 SocketPacket socketData = (SocketPacket)asyn.AsyncState;
 
                 int bytesReceived = 0;
@@ -85,12 +85,12 @@ namespace TetriSomething
                 parseObject(objReceived);
 
                 WaitForData();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Something bad happened : " + ex.Message, "Battle Tetrix", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
-                Application.Restart();
-            }
+            //}
+            //catch (Exception ex)
+            //{
+            //    MessageBox.Show("Something bad happened : " + ex.Message, "Battle Tetrix", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
+            //    Application.Restart();
+            //}
         }
 
         private void parseObject(tet_network_object objReceived)
@@ -102,16 +102,16 @@ namespace TetriSomething
             if (mainWindow.blockLogic.oldReceivedObject != null)
             {
                 if (objReceived.enemyScore != mainWindow.blockLogic.oldReceivedObject.enemyScore)
-                    mainWindow.drawHisScore(mainWindow.graphicsObj2, objReceived.enemyScore);
+                    mainWindow.drawHisScore(mainWindow.hisGraphics, objReceived.enemyScore);
                 if (objReceived.enemyNextShape != mainWindow.blockLogic.oldReceivedObject.enemyNextShape)
-                    mainWindow.drawHisNexShape(mainWindow.graphicsObj2, objReceived.enemyNextShape);
-                mainWindow.drawHisMatrix(mainWindow.graphicsObj2, objReceived.enemyColorMatrix);
+                    mainWindow.drawHisNexShape(mainWindow.hisGraphics, objReceived.enemyNextShape);
+                mainWindow.drawHisMatrix(mainWindow.hisGraphics, objReceived.enemyColorMatrix);
             }
             else
             {
-                mainWindow.drawHisMatrix(mainWindow.graphicsObj2, objReceived.enemyColorMatrix);
-                mainWindow.drawHisScore(mainWindow.graphicsObj2, objReceived.enemyScore);
-                mainWindow.drawHisNexShape(mainWindow.graphicsObj2, objReceived.enemyNextShape);
+                mainWindow.drawHisMatrix(mainWindow.hisGraphics, objReceived.enemyColorMatrix);
+                mainWindow.drawHisScore(mainWindow.hisGraphics, objReceived.enemyScore);
+                mainWindow.drawHisNexShape(mainWindow.hisGraphics, objReceived.enemyNextShape);
             }
 
             mainWindow.blockLogic.oldReceivedObject = objReceived;

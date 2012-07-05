@@ -5,7 +5,7 @@ using System.Text;
 
 namespace TetriSomething
 {
-    public class tet_colors
+    public class tet_graphics
     {
         public const string WHITE = "png/block_white.png";
         public const string CYAN = "png/block_cyan.png";
@@ -36,6 +36,9 @@ namespace TetriSomething
         public const string PIECE_S = "png/nextPieceS.png";
         public const string PIECE_T = "png/nextPieceT.png";
         public const string PIECE_Z = "png/nextPieceZ.png";
+
+        public const string FLASH_DOUBLE = "png/double.swf";
+        public const string FLASH_TRIPLE = "png/triple.swf";
 
         public void initColorMatrix()
         {
